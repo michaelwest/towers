@@ -6,7 +6,7 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
 http.createServer(async (req,res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url,'http://localhost').pathname);
-    if (!['/', '/index.html', '/style.css', '/app.js', '/engine.js', '/art.js', '/assets/venice-atlas.png', '/assets/venice-stone.png'].includes(pathname)) throw Error();
+    if (!['/', '/index.html', '/style.css', '/app.js', '/engine.js', '/art.js', '/tower-art.js', '/assets/crossbow-directions.png', '/assets/cannon-directions.png', '/assets/venice-atlas.png', '/assets/venice-stone.png'].includes(pathname)) throw Error();
     const file = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
     if (!file.startsWith(root + '/')) throw Error();
     const body = await readFile(file);

@@ -27,3 +27,5 @@ Google Fonts enhances typography when reachable; system serif and sans-serif fal
 ## Publish on GitHub Pages
 
 The included GitHub Actions workflow tests and publishes only the static game files and artwork. In the GitHub repository's **Settings → Pages**, set **Source** to **GitHub Actions**. Push to `main` (or run **Deploy Lagoon Guard** manually) to deploy. The project is compatible with a repository subpath such as `/towers/`; no Node server is needed on the host.
+
+Crossbow and cannon towers use separate stationary bases and eight generated weapon directions. Aim follows targets between shots, barrel recoil moves only the weapon, and shot effects begin at the visible muzzle. The Tidekeeper stays fixed and casts from its crystal.
