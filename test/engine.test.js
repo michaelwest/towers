@@ -10,3 +10,13 @@ test('upgrades are capped and selling refunds invested gold',()=>{const g=new Ga
 test('slow towers slow enemies, splash hits adjacent boats',()=>{for(const type of ['frost','splash']){const g=new Game();g.build(0,type);g.wave=1;g.enemies=[0,5].map((offset,i)=>({x:122,y:60+offset,distance:90+offset,speed:1,hp:100,maxHp:100,slow:0,reward:1,id:i}));g.update(.05);assert.ok(g.enemies.every(e=>e.hp===100));tick(g,.4);if(type==='frost')assert.ok(g.enemies.some(e=>e.slow>1&&e.slow<=2));else assert.ok(g.enemies.every(e=>e.hp===71));}});
 test('loss ends spawning and blocks builds and waves',()=>{const g=new Game();g.health=1;g.startWave();tick(g,70);assert.equal(g.status,'lost');assert.equal(g.health,0);assert.equal(g.startWave(),false);assert.equal(g.build(0,'bolt'),false);});
 test('clearing the tenth wave wins',()=>{const g=new Game();g.wave=9;g.startWave();g.queue=[];g.update(.05);assert.equal(g.status,'won');assert.equal(g.startWave(),false);});
+
+test('waves grow from 9 to 68 boats, with increasing counts and tighter spawns',()=>{
+ const waves=Array.from({length:10},(_,index)=>{const game=new Game();game.wave=index;game.startWave();return game.queue;});
+ assert.equal(waves[0].length,9);assert.equal(waves[9].length,68);
+ for(let i=1;i<waves.length;i++){
+  assert.ok(waves[i].length>waves[i-1].length);
+  assert.ok(waves[i][1].at-waves[i][0].at<waves[i-1][1].at-waves[i-1][0].at);
+ }
+ assert.ok(waves[9].some(enemy=>enemy.kind===2));
+});

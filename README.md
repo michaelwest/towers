@@ -33,3 +33,5 @@ Crossbow and cannon towers use separate stationary bases and eight generated wea
 The battlefield and scenery cache render at display resolution (up to 3× pixel density). Paving repeats at a 240-unit tile size for finer cobbles. Bolts and frost shards fly toward their targets; cannonballs follow an arc to a predicted landing point. Damage, splash, and slowing resolve on impact.
 
 The southern city gate is a generated Venetian Arsenal-inspired landmark, with twin brick towers, Istrian stonework, a winged lion, and a transparent canal passage. It renders in front of passing boats; the two nearby moorings are spaced outside its footprint.
+
+Waves increase from 9 boats in the first wave to 68 in the tenth, with accelerating enemy-count growth and spawn intervals tightening from 0.95 to 0.5 seconds. Enemy health and heavier boat types also increase across the campaign.

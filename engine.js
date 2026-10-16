@@ -17,7 +17,7 @@ export class Game {
  upgrade(tower){const cost=this.upgradeCost(tower);if(tower.level>=3||this.gold<cost||!this.towers.includes(tower)||['won','lost'].includes(this.status))return false;this.gold-=cost;tower.level++;this.notice=towerTypes[tower.type].name+' upgraded to level '+tower.level+'.';return true;}
  upgradeCost(tower){return Math.round(towerTypes[tower.type].cost*.75*tower.level);}
  sell(tower){if(!this.towers.includes(tower)||['won','lost'].includes(this.status))return;this.gold+=Math.floor(towerTypes[tower.type].cost*(1+.75*(tower.level-1)*tower.level/2)*.65);this.towers=this.towers.filter(t=>t!==tower);this.notice='Tower sold. Its mooring is available.';}
- startWave(){if(this.active||['lost','won'].includes(this.status))return false;this.wave++;this.status='playing';this.active=true;const count=7+this.wave*2;this.queue=Array.from({length:count},(_,i)=>({at:this.time+i*.95,kind:this.wave<2?0:this.wave<4?(i%3===0?1:0):i%5===0?2:i%2===0?1:0}));this.notice='Wave '+this.wave+' — raiders on the horizon.';return true;}
+ startWave(){if(this.active||['lost','won'].includes(this.status))return false;this.wave++;this.status='playing';this.active=true;const progression=this.wave-1;const count=9+progression*3+Math.floor(progression*progression*.4);const spawnInterval=Math.max(.5,.95-progression*.05);this.queue=Array.from({length:count},(_,i)=>({at:this.time+i*spawnInterval,kind:this.wave<2?0:this.wave<4?(i%3===0?1:0):i%5===0?2:i%2===0?1:0}));this.notice='Wave '+this.wave+' — raiders on the horizon.';return true;}
  update(dt){
   if(['lost','won'].includes(this.status))return;
   this.time+=dt;
