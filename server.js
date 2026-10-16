@@ -2,11 +2,11 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 const root = path.dirname(new URL(import.meta.url).pathname);
-const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml'};
+const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png'};
 http.createServer(async (req,res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url,'http://localhost').pathname);
-    if (!['/', '/index.html', '/style.css', '/app.js', '/engine.js'].includes(pathname)) throw Error();
+    if (!['/', '/index.html', '/style.css', '/app.js', '/engine.js', '/art.js', '/assets/venice-atlas.png', '/assets/venice-stone.png'].includes(pathname)) throw Error();
     const file = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
     if (!file.startsWith(root + '/')) throw Error();
     const body = await readFile(file);
