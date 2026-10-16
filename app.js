@@ -58,8 +58,6 @@ if(artReady){paintSprite(d,atlas,'basilica',9,323,82,90);}else{d.fillStyle='#a5a
 if(!gateReady){
  d.fillStyle='#263f36';d.fillRect(317,686,82,40);d.fillStyle='#b5aa81';d.fillRect(318,678,25,48);d.fillRect(371,678,25,48);d.fillRect(337,685,40,13);d.fillStyle='#7e8e75';d.fillRect(318,674,25,6);d.fillRect(371,674,25,6);
 }
-// Compass rose.
-d.save();d.translate(654,66);d.strokeStyle='#afba9770';circle(d,0,0,21,null,'#afba9750');poly(d,[[0,-28],[5,0],[0,28],[-5,0]],'#b8be9580');poly(d,[[-24,0],[0,-4],[24,0],[0,4]],'#b8be9555');d.font='8px serif';d.fillStyle='#bfc49c';d.fillText('N',0,-36);d.restore();
 }
 makeDecor();
 resizeBoard();
