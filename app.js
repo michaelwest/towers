@@ -24,6 +24,10 @@ const terrain=new Image();
 let terrainReady=false;
 terrain.onload=()=>{terrainReady=true;makeDecor();};
 terrain.src=new URL('./assets/venice-stone.png',import.meta.url).href;
+const gate=new Image();
+let gateReady=false;
+gate.onload=()=>{gateReady=true;makeDecor();};
+gate.src=new URL('./assets/arsenal-gate.png',import.meta.url).href;
 const atlas=new Image();
 let artReady=false,buildingIndex=0;
 atlas.src=new URL('./assets/venice-atlas.png',import.meta.url).href;
@@ -50,9 +54,10 @@ house(481,647,48,43,'#c1af82');house(547,647,39,41,'#b39d75');house(610,609,35,4
 // Small piazza and a domed basilica in the lower-left quarter.
 if(artReady){d.fillStyle='#a9a183';d.fillRect(13,325,76,88);paintSprite(d,atlas,'basilica',9,323,82,90);}else{d.fillStyle='#a5a181';d.fillRect(22,318,61,100);d.strokeStyle='#777e60';d.strokeRect(26,322,53,92);d.fillStyle='#ac9d75';d.fillRect(30,352,44,51);d.fillStyle='#d0ba8a';d.fillRect(34,363,36,40);poly(d,[[28,352],[52,336],[76,352]],'#b6a37b');circle(d,52,336,13,'#819482');d.fillStyle='#819482';d.fillRect(39,336,26,15);d.fillStyle='#d3c08f';d.fillRect(50,316,4,9);d.fillStyle='#33493d';for(let x=40;x<70;x+=11)d.fillRect(x,377,5,17);
 }
-// City gate at the exit.
-d.fillStyle='#263f36';d.fillRect(317,686,82,40);d.fillStyle='#b5aa81';d.fillRect(318,678,25,48);d.fillRect(371,678,25,48);d.fillRect(337,685,40,13);d.fillStyle='#7e8e75';d.fillRect(318,674,25,6);d.fillRect(371,674,25,6);d.fillStyle='#d6ba80';d.fillRect(327,657,2,19);poly(d,[[329,657],[342,660],[329,665]],'#c18464');
-d.textAlign='center';d.font='8px sans-serif';d.letterSpacing='2px';d.fillStyle='#cdd4b3';d.fillText('CITY GATE',357,667);
+// Retain a simple gate if the generated landmark cannot load.
+if(!gateReady){
+ d.fillStyle='#263f36';d.fillRect(317,686,82,40);d.fillStyle='#b5aa81';d.fillRect(318,678,25,48);d.fillRect(371,678,25,48);d.fillRect(337,685,40,13);d.fillStyle='#7e8e75';d.fillRect(318,674,25,6);d.fillRect(371,674,25,6);
+}
 // Compass rose.
 d.save();d.translate(654,66);d.strokeStyle='#afba9770';circle(d,0,0,21,null,'#afba9750');poly(d,[[0,-28],[5,0],[0,28],[-5,0]],'#b8be9580');poly(d,[[-24,0],[0,-4],[24,0],[0,4]],'#b8be9555');d.font='8px serif';d.fillStyle='#bfc49c';d.fillText('N',0,-36);d.restore();
 }
@@ -77,6 +82,8 @@ if(e.slow>0){ctx.shadowColor='#7cf6e7';ctx.shadowBlur=9;}
 if(artReady){paintSprite(ctx,atlas,['skiff','raider','galleon'][e.kind],-length/2,-width/2,length,width);}else{poly(ctx,[[length/2,0],[length/3,-width/2],[-length/2,-width/2],[-length/2,width/2],[length/3,width/2]],['#bd795b','#c09362','#9a6b59'][e.kind],'#e0b180');}
 ctx.restore();ctx.fillStyle='#102e30cc';ctx.fillRect(e.x-16,e.y-width/2-9,32,4);ctx.fillStyle=e.slow>0?'#99eee0':'#ecc181';ctx.fillRect(e.x-15,e.y-width/2-8,30*Math.max(0,e.hp/e.maxHp),2);
 }
+// Foreground arch occludes passing boats while its transparent opening reveals the canal.
+if(gateReady)ctx.drawImage(gate,24,70,1585,818,285,642,144,74.3);
 // Compact moving projectiles, with a separate shadow for lofted cannonballs.
 for(const shot of game.projectiles){
  const progress=Math.min(1,shot.age/shot.duration);

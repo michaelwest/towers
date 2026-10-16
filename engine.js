@@ -1,7 +1,7 @@
 import {weaponMount,muzzlePosition} from './tower-art.js';
 export const W=720, H=730;
 export const pathPoints=[[122,-30],[122,119],[578,119],[578,270],[142,270],[142,424],[578,424],[578,578],[357,578],[357,754]];
-export const sites=[[70,75],[184,65],[295,65],[415,65],[537,65],[632,158],[516,213],[397,213],[277,213],[82,235],[82,350],[205,363],[325,363],[445,363],[633,385],[633,514],[515,516],[410,516],[297,523],[300,650],[419,680],[210,488]];
+export const sites=[[70,75],[184,65],[295,65],[415,65],[537,65],[632,158],[516,213],[397,213],[277,213],[82,235],[82,350],[205,363],[325,363],[445,363],[633,385],[633,514],[515,516],[410,516],[297,523],[270,652],[454,680],[210,488]];
 export const towerTypes={
  bolt:{name:'Campanile',cost:65,range:155,cooldown:.65,damage:19,color:'#e5bd76',description:'A dependable, single-target crossbow.'},
  splash:{name:'Bombard',cost:110,range:145,cooldown:1.65,damage:29,color:'#ed9474',description:'Cannon fire damages clustered boats.'},

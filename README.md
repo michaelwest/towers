@@ -31,3 +31,5 @@ The included GitHub Actions workflow tests and publishes only the static game fi
 Crossbow and cannon towers use separate stationary bases and eight generated weapon directions. Aim follows targets between shots, barrel recoil moves only the weapon, and shot effects begin at the visible muzzle. The Tidekeeper stays fixed and casts from its crystal.
 
 The battlefield and scenery cache render at display resolution (up to 3× pixel density). Paving repeats at a 240-unit tile size for finer cobbles. Bolts and frost shards fly toward their targets; cannonballs follow an arc to a predicted landing point. Damage, splash, and slowing resolve on impact.
+
+The southern city gate is a generated Venetian Arsenal-inspired landmark, with twin brick towers, Istrian stonework, a winged lion, and a transparent canal passage. It renders in front of passing boats; the two nearby moorings are spaced outside its footprint.
