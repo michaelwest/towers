@@ -69,7 +69,14 @@ export class Game {
    const spec=towerTypes[t.type],p=sites[t.site];
    const targets=this.enemies.filter(e=>e.hp>0&&!e.escaped&&Math.hypot(e.x-p[0],e.y-p[1])<=spec.range+12*(t.level-1)).sort((a,b)=>b.distance-a.distance);
    if(!targets.length)continue;
-   const target=targets[0],mount=weaponMount(t.type);
+   let target=targets[0];
+   if(t.type==='frost'){
+    // Spread slowing across the fleet, including shots from other Tidekeepers.
+    const incoming=new Set(this.projectiles.filter(shot=>shot.type==='frost').map(shot=>shot.target));
+    target=targets.find(enemy=>enemy.slow<=0&&!incoming.has(enemy))
+     ||targets.find(enemy=>!incoming.has(enemy))||target;
+   }
+   const mount=weaponMount(t.type);
    t.aim=Math.atan2(target.y-p[1]-mount[1],target.x-p[0]-mount[0]);
    if(t.cooldown>0)continue;
    t.cooldown=spec.cooldown/(1+(t.level-1)*.12);

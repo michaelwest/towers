@@ -33,3 +33,36 @@ test('waves wait for in-flight projectiles and clear after they expire',()=>{
  game.update(.01);assert.equal(game.active,true);
  advance(game,.5);assert.equal(game.active,false);assert.equal(game.projectiles.length,0);
 });
+
+test('frost prefers an unslowed boat over a frozen leader',()=>{
+ const game=new Game();game.build(0,'frost');
+ const leader=enemy(210),fresh=enemy(180);leader.slow=1.5;
+ game.enemies=[leader,fresh];game.update(.01);
+ assert.equal(game.projectiles[0].target,fresh);
+});
+test('frost still selects the leading boat among unslowed targets',()=>{
+ const game=new Game();game.build(0,'frost');
+ const front=enemy(210),back=enemy(180);game.enemies=[back,front];game.update(.01);
+ assert.equal(game.projectiles[0].target,front);
+});
+test('multiple frost towers spread shots instead of duplicating an incoming freeze',()=>{
+ const game=new Game();game.build(0,'frost');game.build(1,'frost');
+ const front=enemy(210),back=enemy(180);game.enemies=[front,back];game.update(.01);
+ assert.equal(game.projectiles.length,2);
+ assert.equal(game.projectiles[0].target,front);assert.equal(game.projectiles[1].target,back);
+});
+test('frost refreshes a frozen boat when every boat in range is already slowed',()=>{
+ const game=new Game();game.build(0,'frost');
+ const front=enemy(210),back=enemy(180);front.slow=1;back.slow=1;
+ game.enemies=[back,front];game.update(.01);
+ assert.equal(game.projectiles[0].target,front);
+ advance(game,.6);assert.ok(front.slow>1);
+});
+test('damage towers continue targeting the leader even when it is frozen',()=>{
+ for(const type of ['bolt','splash']){
+  const game=new Game();game.build(0,type);
+  const front=enemy(210),back=enemy(180);front.slow=1;
+  game.enemies=[back,front];game.update(.01);
+  assert.equal(game.projectiles[0].target,front);
+ }
+});
