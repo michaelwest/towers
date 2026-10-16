@@ -52,7 +52,7 @@ house(198,462,49,40,'#baab82');house(262,461,37,30,'#a79474');house(333,461,39,3
 house(25,463,41,51,'#bbaa81');house(26,550,39,42,'#b9a17b');house(87,581,45,36,'#b4a57d');house(156,577,35,40,'#bfa67e');house(199,589,44,35,'#a69c78');house(84,665,39,37,'#b9a880');house(150,660,55,36,'#b7a27e');house(224,673,35,38,'#9f936e');
 house(481,647,48,43,'#c1af82');house(547,647,39,41,'#b39d75');house(610,609,35,46,'#bcaa84');house(620,688,45,40,'#a79772');house(664,232,34,45,'#b09c72');house(665,321,36,32,'#9d9470');house(666,440,33,39,'#b1a17b');
 // Small piazza and a domed basilica in the lower-left quarter.
-if(artReady){d.fillStyle='#a9a183';d.fillRect(13,325,76,88);paintSprite(d,atlas,'basilica',9,323,82,90);}else{d.fillStyle='#a5a181';d.fillRect(22,318,61,100);d.strokeStyle='#777e60';d.strokeRect(26,322,53,92);d.fillStyle='#ac9d75';d.fillRect(30,352,44,51);d.fillStyle='#d0ba8a';d.fillRect(34,363,36,40);poly(d,[[28,352],[52,336],[76,352]],'#b6a37b');circle(d,52,336,13,'#819482');d.fillStyle='#819482';d.fillRect(39,336,26,15);d.fillStyle='#d3c08f';d.fillRect(50,316,4,9);d.fillStyle='#33493d';for(let x=40;x<70;x+=11)d.fillRect(x,377,5,17);
+if(artReady){paintSprite(d,atlas,'basilica',9,323,82,90);}else{d.fillStyle='#a5a181';d.fillRect(22,318,61,100);d.strokeStyle='#777e60';d.strokeRect(26,322,53,92);d.fillStyle='#ac9d75';d.fillRect(30,352,44,51);d.fillStyle='#d0ba8a';d.fillRect(34,363,36,40);poly(d,[[28,352],[52,336],[76,352]],'#b6a37b');circle(d,52,336,13,'#819482');d.fillStyle='#819482';d.fillRect(39,336,26,15);d.fillStyle='#d3c08f';d.fillRect(50,316,4,9);d.fillStyle='#33493d';for(let x=40;x<70;x+=11)d.fillRect(x,377,5,17);
 }
 // Retain a simple gate if the generated landmark cannot load.
 if(!gateReady){
