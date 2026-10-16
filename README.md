@@ -1,0 +1,29 @@
+# Lagoon Guard
+
+A mobile-friendly, Venetian canal tower defence game. Defend the city through ten waves with precision, splash, and slowing towers. Built with Canvas and vanilla JavaScript; no dependencies, account, or backend service required.
+
+## Run
+
+Requires Node.js 18 or newer.
+
+```sh
+npm start
+```
+
+The server listens on all interfaces at port 3000. Set `PORT` to change it. Open the server address on a phone connected to the same network or through your development host's port forwarding.
+
+```sh
+npm test
+```
+
+Tests cover combat, economy, tower upgrades, slowing and splash effects, wave completion, and loss/win conditions.
+
+## Play
+
+Select a tower, then tap a circular mooring on the map. Launch a wave when ready. Tap built towers to upgrade or sell. Each kill earns gold, and each cleared wave earns a bonus. Every boat that reaches the southern gate costs one of your 20 integrity points. Survive all ten waves to win. Pause, 2× speed, reset, optional interface sounds, and in-game instructions are included.
+
+Google Fonts enhances typography when reachable; system serif and sans-serif fallbacks work offline. All battlefield artwork is generated locally with Canvas.
+
+## Publish on GitHub Pages
+
+The included GitHub Actions workflow tests and publishes only the four static game files. In the GitHub repository's **Settings → Pages**, set **Source** to **GitHub Actions**. Push to `main` (or run **Deploy Lagoon Guard** manually) to deploy. The project is compatible with a repository subpath such as `/towers/`; no Node server is needed on the host.
