@@ -35,3 +35,7 @@ The battlefield and scenery cache render at display resolution (up to 3× pixel 
 The southern city gate is a generated Venetian Arsenal-inspired landmark, with twin brick towers, Istrian stonework, a winged lion, and a transparent canal passage. It renders in front of passing boats; the two nearby moorings are spaced outside its footprint.
 
 Waves increase from 9 boats in the first wave to 68 in the tenth, with accelerating enemy-count growth and spawn intervals tightening from 0.95 to 0.5 seconds. Enemy health and heavier boat types also increase across the campaign.
+
+## Game balance
+
+Run `npm run balance` for tower DPS, enemy HP and counts, gold budgets, and full-engine simulations of three mixed tower layouts. See [BALANCE.md](BALANCE.md) for the maths, measured clear margins, and tuning assumptions. Combat advances in fixed 1/60-second steps so phone frame rate does not change tower DPS.

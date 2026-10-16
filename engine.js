@@ -7,23 +7,36 @@ export const towerTypes={
  splash:{name:'Bombard',cost:110,range:145,cooldown:1.65,damage:29,color:'#ed9474',description:'Cannon fire damages clustered boats.'},
  frost:{name:'Tidekeeper',cost:85,range:138,cooldown:.95,damage:6,color:'#76d6cd',description:'Slows enemies by 48% for 2 seconds.'}
 };
-const kinds=[{name:'Skiff',hp:45,speed:69,reward:9,size:10},{name:'Raider',hp:105,speed:48,reward:15,size:15},{name:'Galleon',hp:240,speed:31,reward:25,size:21}];
+export const enemyTypes=[{name:'Skiff',hp:45,speed:69,reward:3,size:10},{name:'Raider',hp:105,speed:48,reward:5,size:15},{name:'Galleon',hp:240,speed:31,reward:8,size:21}];
+export const balance={startingGold:220,clearBonus:80,hpMultipliers:[1.65,2.1,2.45,2.65,2.9,3.2,3.5,3.75,4.6,4.9]};
+export function waveProfile(wave){
+ const progression=wave-1,count=9+progression*3+Math.floor(progression*progression*.4);
+ const spawnOrder=Array.from({length:count},(_,i)=>wave<2?0:wave<4?(i%3===0?1:0):i%5===0?2:i%2===0?1:0);
+ return {count,spawnInterval:Math.max(.5,.95-progression*.05),hpMultiplier:balance.hpMultipliers[progression],clearBonus:balance.clearBonus,spawnOrder};
+}
 const segments=pathPoints.slice(1).map((p,i)=>Math.hypot(p[0]-pathPoints[i][0],p[1]-pathPoints[i][1]));
 export const pathLength=segments.reduce((a,b)=>a+b,0);
 export function position(distance){let d=distance;for(let i=0;i<segments.length;i++){if(d<=segments[i]){const a=pathPoints[i],b=pathPoints[i+1],t=d/segments[i];return {x:a[0]+(b[0]-a[0])*t,y:a[1]+(b[1]-a[1])*t,angle:Math.atan2(b[1]-a[1],b[0]-a[0])};}d-=segments[i];}return {x:357,y:754,angle:Math.PI/2};}
 export class Game {
- constructor(){this.gold=220;this.health=20;this.wave=0;this.kills=0;this.towers=[];this.enemies=[];this.projectiles=[];this.effects=[];this.queue=[];this.active=false;this.status='ready';this.time=0;this.lastId=0;this.notice='Build your first line of defence.';}
+ constructor(){this.gold=balance.startingGold;this.health=20;this.wave=0;this.kills=0;this.towers=[];this.enemies=[];this.projectiles=[];this.effects=[];this.queue=[];this.active=false;this.status='ready';this.time=0;this.lastId=0;this.notice='Build your first line of defence.';}
  build(site,type){const spec=towerTypes[type];if(!spec||!sites[site]||this.status==='lost'||this.status==='won')return false;if(this.towers.some(t=>t.site===site)){this.notice='That mooring already has a tower.';return false;}if(this.gold<spec.cost){this.notice='Not enough gold. Defeat raiders to earn more.';return false;}this.gold-=spec.cost;this.towers.push({site,type,level:1,cooldown:0,aim:-Math.PI/2});this.notice=spec.name+' built. Ready for the tide.';return true;}
  upgrade(tower){const cost=this.upgradeCost(tower);if(tower.level>=3||this.gold<cost||!this.towers.includes(tower)||['won','lost'].includes(this.status))return false;this.gold-=cost;tower.level++;this.notice=towerTypes[tower.type].name+' upgraded to level '+tower.level+'.';return true;}
  upgradeCost(tower){return Math.round(towerTypes[tower.type].cost*.75*tower.level);}
  sell(tower){if(!this.towers.includes(tower)||['won','lost'].includes(this.status))return;this.gold+=Math.floor(towerTypes[tower.type].cost*(1+.75*(tower.level-1)*tower.level/2)*.65);this.towers=this.towers.filter(t=>t!==tower);this.notice='Tower sold. Its mooring is available.';}
- startWave(){if(this.active||['lost','won'].includes(this.status))return false;this.wave++;this.status='playing';this.active=true;const progression=this.wave-1;const count=9+progression*3+Math.floor(progression*progression*.4);const spawnInterval=Math.max(.5,.95-progression*.05);this.queue=Array.from({length:count},(_,i)=>({at:this.time+i*spawnInterval,kind:this.wave<2?0:this.wave<4?(i%3===0?1:0):i%5===0?2:i%2===0?1:0}));this.notice='Wave '+this.wave+' — raiders on the horizon.';return true;}
+ startWave(){
+  if(this.active||['lost','won'].includes(this.status))return false;
+  this.wave++;this.status='playing';this.active=true;
+  const profile=waveProfile(this.wave);
+  this.queue=profile.spawnOrder.map((kind,i)=>({at:this.time+i*profile.spawnInterval,kind}));
+  this.notice='Wave '+this.wave+' — raiders on the horizon.';return true;
+ }
+
  update(dt){
   if(['lost','won'].includes(this.status))return;
   this.time+=dt;
   this.effects=this.effects.filter(e=>(e.life-=dt)>0);
   while(this.queue.length&&this.queue[0].at<=this.time){
-   const q=this.queue.shift(),k=kinds[q.kind],hp=k.hp*(1+(this.wave-1)*.22);
+   const q=this.queue.shift(),k=enemyTypes[q.kind],hp=Math.round(k.hp*waveProfile(this.wave).hpMultiplier);
    this.enemies.push({...k,hp,maxHp:hp,kind:q.kind,distance:0,slow:0,id:++this.lastId,...position(0)});
   }
   for(const e of this.enemies){
@@ -96,7 +109,7 @@ export class Game {
   this.enemies=this.enemies.filter(e=>e.hp>0&&!e.escaped);
   if(this.health<=0){this.status='lost';this.active=false;this.projectiles=[];this.notice='The lagoon has fallen.';return;}
   if(this.active&&!this.queue.length&&!this.enemies.length&&!this.projectiles.length){
-   this.active=false;this.gold+=25+this.wave*3;
+   this.active=false;this.gold+=balance.clearBonus;
    if(this.wave===10){this.status='won';this.notice='Venice stands. The lagoon is yours!';}
    else{this.status='ready';this.notice='Wave cleared! Reinforce your defences.';}
   }
