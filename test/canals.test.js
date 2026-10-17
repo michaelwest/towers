@@ -10,15 +10,23 @@ test('dams cost 125 gold and a second dam requires more income',()=>{
  assert.match(game.notice,/Not enough gold/);
 });
 test('open canals offer multiple routes and dams lengthen the shortest route',()=>{
- const game=new Game();game.gold=damCost*3;assert.ok(game.routes.length>1);assert.equal(game.routes[0].length,1019);
- assert.ok(game.buildDam('west-cut'));assert.ok(game.routes[0].length>1019);
+ const game=new Game();game.gold=damCost*3;assert.ok(game.routes.length>1);assert.equal(game.routes[0].length,1225);
+ assert.ok(game.buildDam('west-cut'));assert.ok(game.routes[0].length>1225);
  assert.ok(game.buildDam('centre-cut'));assert.ok(game.buildDam('east-cut'));
  assert.equal(game.routes.length,1);assert.equal(game.routes[0].length,2333);
 });
-test('a complete blockade is rejected without spending gold or changing the map',()=>{
- const game=new Game();game.buildDam('west-cut');const before=game.gold;
- assert.equal(game.buildDam('east-upper'),false);assert.equal(game.gold,before);
- assert.deepEqual(game.dams,['west-cut']);assert.match(game.notice,/route.*open/);
+test('every individual dam adds its own detour while the main canal stays open',()=>{
+ const open=findRoutes()[0].length;
+ const detours={'west-cut':536,'east-cut':276,'centre-cut':296};
+ for(const site of damSites){
+  const game=new Game();assert.ok(game.buildDam(site.id));
+  assert.equal(game.routes[0].length-open,detours[site.id]);
+ }
+ const game=new Game();game.gold=1000;
+ for(const site of damSites)assert.ok(game.buildDam(site.id));
+ const before=game.gold;
+ for(const edge of canalEdges.filter(e=>!e.dam))assert.equal(game.buildDam(edge.id),false);
+ assert.equal(game.gold,before);assert.equal(game.routes[0].length,2333);
 });
 test('all reachable dam configurations reject any closure that disconnects the entrance',()=>{
  for(let mask=0;mask<1<<damSites.length;mask++){
@@ -28,7 +36,9 @@ test('all reachable dam configurations reject any closure that disconnects the e
    if(blocked.includes(site.id))continue;
    const game=new Game();game.gold=1000;game.dams=[...blocked];game.routes=findRoutes(blocked);
    const possible=findRoutes([...blocked,site.id]).length>0;
+   const before=game.routes[0].length;
    assert.equal(game.buildDam(site.id),possible,'configuration '+mask+' / '+site.id);
+   assert.ok(game.routes[0].length>before,'each remaining dam must add a detour on configuration '+mask);
    assert.ok(game.routes.length>0);
   }
  }
@@ -41,7 +51,7 @@ test('live boats reroute without teleporting and continue along open canals',()=
  game.update(1/60);assert.ok(Math.hypot(boat.x-before.x,boat.y-before.y)<=boat.speed/60+.001);
 });
 test('cannot build through boats already inside the canal',()=>{
- const game=new Game();game.startWave();advance(game,3);const before=game.gold;
+ const game=new Game();game.startWave();advance(game,6);const before=game.gold;
  assert.equal(game.buildDam('west-cut'),false);assert.equal(game.gold,before);assert.match(game.notice,/boat is in this canal/);
 });
 test('spawned boats use more than one open route',()=>{
@@ -51,7 +61,7 @@ test('spawned boats use more than one open route',()=>{
 test('dam removal reopens paths, refunds part of cost, and cannot be refunded twice',()=>{
  const game=new Game();game.buildDam('west-cut');const before=game.gold;
  assert.ok(game.removeDam('west-cut'));assert.equal(game.gold,before+Math.floor(damCost*.65));
- assert.equal(game.routes[0].length,1019);assert.equal(game.removeDam('west-cut'),false);
+ assert.equal(game.routes[0].length,1225);assert.equal(game.removeDam('west-cut'),false);
 });
 test('invalid, duplicate, unaffordable, and post-game dam purchases do not mutate state',()=>{
  const game=new Game();assert.equal(game.buildDam('entry'),false);game.buildDam('west-cut');const gold=game.gold;

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {cityLayout} from '../city.js';
+import {cityLayout,pointClearance} from '../city.js';
 import {canalEdges} from '../canals.js';
 import {sites} from '../engine.js';
 test('city scenery leaves canal water and interactive tower moorings clear',()=>{
@@ -21,4 +21,12 @@ test('city scenery leaves canal water and interactive tower moorings clear',()=>
 test('the city includes dense residential blocks and lower-density markets and gardens',()=>{
  const kinds=new Set(cityLayout.map(item=>item.kind));
  for(const kind of ['dense','market','piazza','garden','palazzo','warehouses','townhouse','workshop','civic'])assert.ok(kinds.has(kind),kind+' district must appear');
+});
+
+test('relocated tower moorings stay on dry land beside the staggered shortcuts',()=>{
+ for(const site of [8,12,17])for(const edge of canalEdges){
+  const [a,b]=edge.points;
+  const rect={x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),w:Math.abs(a[0]-b[0]),h:Math.abs(a[1]-b[1])};
+  assert.ok(pointClearance(rect,sites[site])>=60,'mooring '+site+' must clear the canal');
+ }
 });

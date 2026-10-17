@@ -1,18 +1,21 @@
-// The original winding route remains available; three cross-canals create shortcuts.
+// Three independent shortcuts skip successive bends of the permanent main canal.
 export const canalNodes={
- entry:[122,-30],north:[122,119],fork:[142,119],ne:[578,119],east:[578,270],
- west:[142,270],sw:[142,424],centre:[357,424],se:[578,424],south:[578,578],
- exitFork:[357,578],gate:[357,754]
+ entry:[122,-30],north:[122,119],upperFork:[310,119],ne:[578,119],
+ east:[578,270],upperJoin:[310,270],middleFork:[280,270],west:[142,270],
+ sw:[142,424],middleJoin:[280,424],lowerFork:[430,424],se:[578,424],
+ south:[578,578],lowerJoin:[430,578],exitFork:[357,578],gate:[357,754]
 };
-const edge=(id,a,b,dam=false)=>({id,a,b,dam,points:[canalNodes[a],canalNodes[b]],length:Math.hypot(canalNodes[a][0]-canalNodes[b][0],canalNodes[a][1]-canalNodes[b][1])});
+const edge=(id,a,b,dam=false,at=.5)=>({id,a,b,dam,at,points:[canalNodes[a],canalNodes[b]],length:Math.hypot(canalNodes[a][0]-canalNodes[b][0],canalNodes[a][1]-canalNodes[b][1])});
 export const canalEdges=[
- edge('entry','entry','north'),edge('north','north','fork'),edge('upper','fork','ne'),
- edge('east-upper','ne','east',true),edge('middle','east','west'),edge('west-middle','west','sw',true),
- edge('lower-left','sw','centre'),edge('lower-right','centre','se'),edge('east-lower','se','south',true),
- edge('bottom','south','exitFork'),edge('exit','exitFork','gate'),
- edge('west-cut','fork','west',true),edge('east-cut','east','se',true),edge('centre-cut','centre','exitFork',true)
+ edge('entry','entry','north'),edge('upper-left','north','upperFork'),edge('upper-right','upperFork','ne'),
+ edge('east-upper','ne','east'),edge('middle-right','east','upperJoin'),edge('middle-link','upperJoin','middleFork'),edge('middle-left','middleFork','west'),
+ edge('west-middle','west','sw'),edge('lower-left','sw','middleJoin'),edge('lower-middle','middleJoin','lowerFork'),edge('lower-right','lowerFork','se'),
+ edge('east-lower','se','south'),edge('bottom-right','south','lowerJoin'),edge('bottom-left','lowerJoin','exitFork'),edge('exit','exitFork','gate'),
+ edge('west-cut','upperFork','upperJoin',true,.38),
+ edge('east-cut','middleFork','middleJoin',true,.57),
+ edge('centre-cut','lowerFork','lowerJoin',true,.65)
 ];
-export const damSites=canalEdges.filter(edge=>edge.dam).map(edge=>({...edge,x:(edge.points[0][0]+edge.points[1][0])/2,y:(edge.points[0][1]+edge.points[1][1])/2}));
+export const damSites=canalEdges.filter(edge=>edge.dam).map(edge=>({...edge,x:edge.points[0][0]+(edge.points[1][0]-edge.points[0][0])*edge.at,y:edge.points[0][1]+(edge.points[1][1]-edge.points[0][1])*edge.at}));
 export const damCost=125;
 const cache=new Map();
 export function findRoutes(blocked=[],start='entry'){

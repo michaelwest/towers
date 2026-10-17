@@ -38,11 +38,11 @@ Waves increase from 9 boats in the first wave to 68 in the tenth, with accelerat
 
 ## Game balance
 
-Run `npm run balance` for tower DPS, enemy HP and counts, gold budgets, and full-engine simulations of three mixed tower layouts. See [BALANCE.md](BALANCE.md) for the maths, measured clear margins, and tuning assumptions. Combat advances in fixed 1/60-second steps so phone frame rate does not change tower DPS.
+Run `npm run balance` for tower DPS, enemy HP and counts, gold budgets, and full-engine simulations of two mixed-tower purchase plans. See [BALANCE.md](BALANCE.md) for the maths, measured clear margins, and tuning assumptions. Combat advances in fixed 1/60-second steps so phone frame rate does not change tower DPS.
 
 ## Branching canals and dams
 
-The map begins with eight routes through three cross-canals. Boats choose a short open route, with every third boat taking a nearby alternative when available. Select **Dam**, then tap a marked crossing to close it for 125 gold. The preview shows the shortest remaining route. Dam placement checks entrance connectivity and each live boat, rejects occupied canals, and reroutes boats from their current positions. Click a built dam to reopen it for an 81-gold refund. Closing all three shortcuts restores the original 2,333-unit winding route; leaving them open permits a 1,019-unit shortcut.
+The map begins with eight routes through three staggered shortcuts, each bypassing a different bend. Every dam adds its own detour, without needing a matching dam on another vertical canal. Boats choose a short open route, with every third boat taking a nearby alternative when available. Select **Dam**, then tap a marked crossing to close it for 125 gold. The preview shows the shortest remaining route. Dam placement checks entrance connectivity and each live boat, rejects occupied canals, and reroutes boats from their current positions. Click a built dam to reopen it for an 81-gold refund. Closing all three shortcuts restores the original 2,333-unit winding route; leaving them open permits a 1,225-unit route.
 
 The balance simulations now include dam purchases, with no change to starting gold, wave health, income, or tower stats.
 

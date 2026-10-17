@@ -2,32 +2,32 @@ import {Game,towerTypes,enemyTypes,waveProfile,pathLength} from '../engine.js';
 
 // Each row lists purchases before that wave; all use the live engine prices.
 export const strategies={
- cannonFirst:[
+ upgradeFinish:[
   [[8,'bolt'],[12,'bolt'],[17,'bolt']], // Wave 1
   [[6,'bolt'],[11,'bolt']], // Wave 2
   [[6,'upgrade'],[21,'bolt']], // Wave 3
-  [[17,'upgrade'],[18,'bolt']], // Wave 4
-  [[18,'upgrade'],[13,'splash']], // Wave 5
-  [['west-cut','dam'],['east-cut','dam']], // Wave 6
-  [['centre-cut','dam'],[7,'splash']], // Wave 7
-  [[16,'frost'],[13,'upgrade'],[7,'upgrade'],[8,'upgrade']], // Wave 8
-  [[13,'upgrade'],[7,'upgrade']], // Wave 9
-  [[16,'upgrade'],[16,'upgrade'],[8,'upgrade'],[12,'upgrade']] // Wave 10
- ],
- frostFirst:[
-  [[8,'bolt'],[12,'bolt'],[17,'bolt']], // Wave 1
-  [[6,'bolt'],[11,'bolt']], // Wave 2
-  [[6,'upgrade'],[21,'bolt']], // Wave 3
-  [[17,'upgrade'],[18,'bolt']], // Wave 4
-  [[18,'upgrade'],[13,'splash']], // Wave 5
-  [['west-cut','dam'],['east-cut','dam']], // Wave 6
+  [['west-cut','dam']], // Wave 4
+  [[18,'bolt'],[13,'splash']], // Wave 5
+  [['east-cut','dam'],[7,'splash']], // Wave 6
   [['centre-cut','dam'],[16,'frost']], // Wave 7
-  [[7,'splash'],[13,'upgrade'],[7,'upgrade'],[8,'upgrade']], // Wave 8
+  [[13,'upgrade'],[7,'upgrade'],[8,'upgrade']], // Wave 8
   [[13,'upgrade'],[7,'upgrade']], // Wave 9
-  [[16,'upgrade'],[16,'upgrade'],[8,'upgrade'],[12,'upgrade']] // Wave 10
+  [[16,'upgrade'],[16,'upgrade'],[17,'upgrade'],[17,'upgrade'],[12,'upgrade'],[18,'upgrade']] // Wave 10
+ ],
+ frostFinish:[
+  [[8,'bolt'],[12,'bolt'],[17,'bolt']], // Wave 1
+  [[6,'bolt'],[11,'bolt']], // Wave 2
+  [[6,'upgrade'],[21,'bolt']], // Wave 3
+  [['west-cut','dam']], // Wave 4
+  [[18,'bolt'],[13,'splash']], // Wave 5
+  [['east-cut','dam'],[7,'splash']], // Wave 6
+  [['centre-cut','dam'],[16,'frost']], // Wave 7
+  [[13,'upgrade'],[7,'upgrade'],[8,'upgrade']], // Wave 8
+  [[13,'upgrade'],[7,'upgrade']], // Wave 9
+  [[19,'frost'],[16,'upgrade'],[17,'upgrade'],[17,'upgrade'],[12,'upgrade'],[18,'upgrade']] // Wave 10
  ]
 };
-export function simulate({strategy='cannonFirst',dt=1/60,stopAfter=10,invest=true}={}){
+export function simulate({strategy='upgradeFinish',dt=1/60,stopAfter=10,invest=true}={}){
  const game=new Game(),rows=[];
  for(let wave=1;wave<=stopAfter;wave++){
   if(invest||wave===1){

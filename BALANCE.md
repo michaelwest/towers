@@ -20,7 +20,7 @@ The Bombard does 35.15 / 52.73 effective base DPS when each shot catches two / t
 
 Base HP is 45 / 105 / 240; each wave applies its configured multiplier and rounds HP to the nearest integer. Speed is 69 / 48 / 31 map units per second. Kill rewards are **3 / 5 / 8 gold** for skiffs / raiders / galleons. Starting treasury is 220, and clearing a wave grants **80 gold**, even if some boats escaped. Escaped boats grant no kill reward. The reliable clear bonus funds expansion without requiring perfect early play.
 
-The open network has eight routes; the shortest is 1,019 units. Dams can force a journey of up to 2,333 units. On that longest route, before slowing, a full journey takes 33.8 / 48.6 / 75.3 seconds. Actual tower uptime depends on placement; towers never deliver their headline DPS for the entire journey.
+The open network has eight routes; the shortest is 1,225 units. Dams can force a journey of up to 2,333 units. On that longest route, before slowing, a full journey takes 33.8 / 48.6 / 75.3 seconds. Actual tower uptime depends on placement; towers never deliver their headline DPS for the entire journey.
 
 | Wave | Skiffs / Raiders / Galleons | HP each (S / R / G) | Total HP | Spawn interval | Kill gold | Clear bonus | Full-clear income |
 |---|---|---|---:|---:|---:|---:|---:|
@@ -37,33 +37,41 @@ The open network has eight routes; the shortest is 1,019 units. Dams can force a
 
 Enemy count = 9 + 3n + floor(0.4n²), where n = wave − 1. Spawn interval = max(0.5, 0.95 − 0.05n). HP multipliers are a deliberately tuned per-wave table in engine.js; heavier boats first appear on wave 4.
 
-Perfect clears earn 2376 gold, or 2,596 including the initial treasury. Only 2,188 is available before wave 10; its 408-gold reward cannot help defend that wave. Fully upgrading the reference mix of seven crossbows, two cannons, and one frost tower costs 2,477 gold, before the additional 375 gold for three dams. The player must choose where to spend rather than max everything.
+Perfect clears earn 2376 gold, or 2,596 including the initial treasury. Only 2,188 is available before wave 10; its 408-gold reward cannot help defend that wave. Fully upgrading seven crossbows, two cannons, and one frost tower costs 2,477 gold (2,754 with the optional second frost tower), before the additional 375 gold for three dams. The player must choose where to spend rather than max everything.
 
 ## Branching routes and dam costs
 
-Dams cost 125 gold each and refund 81 on removal. At 3.57 times their former price, dams require saving or deferring tower upgrades; the 220-gold opening treasury cannot buy two. Six canal crossings can be closed. The initial shortest route is 1,019 units; the original winding route is 2,333 units. Closing the three cross-canals extends the shortest route by 129%. The network starts with eight simple routes. Most boats use the shortest; every third chooses the second-shortest when it is within 50% of the shortest.
+Dams cost 125 gold each and refund 81 on removal. At 3.57 times their former price, dams require saving or deferring tower upgrades; the 220-gold opening treasury cannot buy two. Three staggered shortcut crossings can be closed. Each bypasses a separate bend of the main canal, so a single purchase always extends the shortest route, even when other dams have already been built. The original winding backbone cannot be dammed, guaranteeing an open route through every combination.
+
+| Dam | Map position | Extra distance when closed alone | Shortest route afterward |
+|---|---|---:|---:|
+| Upper shortcut | (310, 176) | 536 (+43.8%) | 1,761 |
+| Middle shortcut | (280, 358) | 276 (+22.5%) | 1,501 |
+| Lower shortcut | (430, 524) | 296 (+24.2%) | 1,521 |
+
+The initial shortest route is 1,225 units; all three dams restore the 2,333-unit main canal, an increase of 90.4%. Detours add independently. The network starts with eight simple routes. Most boats use the shortest; every third chooses the second-shortest when it is within 50% of the shortest.
 
 Dam purchases validate the full network and each live boat. Complete blockades, trapped boats, and building through an occupied canal are rejected without charging gold. Live boats reroute from their current position. Target priority uses remaining distance to the goal, so a boat on a shortcut is not overlooked merely because it travelled fewer units.
 
 ## Measured campaigns
 
-Run `npm run balance` to reproduce these results. The two explicit purchase schedules are in scripts/balance.mjs. They begin with three crossbows for 195 of the starting 220 gold, invest in upgrades and a mixed defence, and buy dams later in the campaign. Purchases happen only between waves. Every purchase must succeed at its actual price; the simulator rejects unaffordable plans. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. Enemy HP, wave counts, tower stats, starting gold, and wave income are unchanged.
+Run `npm run balance` to reproduce these results. The two explicit purchase schedules are in scripts/balance.mjs. They begin with three crossbows for 195 of the starting 220 gold, buy the first dam before wave 4, and use it alone through wave 5. The other dams follow before waves 6 and 7. Purchases happen only between waves. Every purchase must succeed at its actual price; the simulator rejects unaffordable plans. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. Enemy HP, wave counts, tower stats, starting gold, and wave income are unchanged.
 
 “Furthest” is the maximum fraction of a boat's own current route traversed during the wave. Reaching 100% means a leak. The opening uses the open network; routes lengthen as dams become affordable.
 
-| Wave | Cannon first: furthest | Frost first: furthest | Escapes, both |
+| Wave | Upgrade finish: furthest | Extra frost: furthest | Escapes, both |
 |---|---:|---:|---:|
-| 1 | 74.1% | 74.1% | 0 |
-| 2 | 71.8% | 71.8% | 0 |
-| 3 | 67.8% | 67.8% | 0 |
-| 4 | 92.5% | 92.5% | 0 |
-| 5 | 91.6% | 91.6% | 0 |
-| 6 | 91.6% | 91.6% | 0 |
-| 7 | 90.2% | 91.5% | 0 |
-| 8 | 74.5% | 74.5% | 0 |
-| 9 | 77.4% | 77.4% | 0 |
-| 10 | 93.1% | 93.1% | 0 |
+| 1 | 59.9% | 59.9% | 0 |
+| 2 | 69.0% | 69.0% | 0 |
+| 3 | 80.0% | 80.0% | 0 |
+| 4 | 85.5% | 85.5% | 0 |
+| 5 | 79.1% | 79.1% | 0 |
+| 6 | 91.7% | 91.7% | 0 |
+| 7 | 93.0% | 93.0% | 0 |
+| 8 | 90.2% | 90.2% | 0 |
+| 9 | 96.0% | 96.0% | 0 |
+| 10 | 90.5% | 90.8% | 0 |
 
-Both plans clear every boat in all ten waves while paying 375 gold for three dams. They buy two dams before wave 6 and the third before wave 7. One adds the second cannon before wave 7 and frost before wave 8; the other reverses those tower purchases. Both final threats reach 93.1% of the route, with 22 gold left before the final wave. Keeping only the initial defence eventually loses the campaign.
+Both plans clear every boat in all ten waves while paying 375 gold for three dams. They use the same mixed defence through wave 9, then either invest in existing towers or add a second frost tower at the exit. Their final threats reach 90.5% / 90.8% of the route, with 22 / 65 gold left before the final wave. Wave 9 reaches 96.0%. Keeping only the initial defence eventually loses the campaign.
 
-Regression tests require all 20 reference waves to clear, reconcile actual income with theoretical budgets, account for dam purchases, and apply meaningful pressure to the back line. Routing tests enumerate every dam configuration and ensure no successful purchase disconnects the gate. Human playtesting should guide further tuning of placement tolerance and perceived difficulty.
+Regression tests require all 20 reference waves to clear, reconcile actual income with theoretical budgets, account for dam purchases, and apply meaningful pressure to the back line. Routing tests enumerate every dam configuration, require each additional dam to extend the route, and ensure no successful purchase disconnects the gate. Human playtesting should guide further tuning of placement tolerance and perceived difficulty.
