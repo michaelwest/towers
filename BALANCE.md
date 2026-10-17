@@ -20,7 +20,7 @@ The Bombard does 35.15 / 52.73 effective base DPS when each shot catches two / t
 
 Base HP is 45 / 105 / 240; each wave applies its configured multiplier and rounds HP to the nearest integer. Speed is 69 / 48 / 31 map units per second. Kill rewards are **3 / 5 / 8 gold** for skiffs / raiders / galleons. Starting treasury is 220, and clearing a wave grants **80 gold**, even if some boats escaped. Escaped boats grant no kill reward. The reliable clear bonus funds expansion without requiring perfect early play.
 
-The path is 2333 units long. Before slowing, a full journey takes 33.8 / 48.6 / 75.3 seconds. Actual tower uptime depends on placement; towers never deliver their headline DPS for the entire journey.
+The open network has eight routes; the shortest is 1,019 units. Dams can force a journey of up to 2,333 units. On that longest route, before slowing, a full journey takes 33.8 / 48.6 / 75.3 seconds. Actual tower uptime depends on placement; towers never deliver their headline DPS for the entire journey.
 
 | Wave | Skiffs / Raiders / Galleons | HP each (S / R / G) | Total HP | Spawn interval | Kill gold | Clear bonus | Full-clear income |
 |---|---|---|---:|---:|---:|---:|---:|
@@ -37,29 +37,33 @@ The path is 2333 units long. Before slowing, a full journey takes 33.8 / 48.6 / 
 
 Enemy count = 9 + 3n + floor(0.4n²), where n = wave − 1. Spawn interval = max(0.5, 0.95 − 0.05n). HP multipliers are a deliberately tuned per-wave table in engine.js; heavier boats first appear on wave 4.
 
-Perfect clears earn 2376 gold, or 2,596 including the initial treasury. Only 2,188 is available before wave 10; its 408-gold reward cannot help defend that wave. The reference ten-tower mix would cost 2,753 to fully upgrade, so the player must choose where to spend rather than max everything.
+Perfect clears earn 2376 gold, or 2,596 including the initial treasury. Only 2,188 is available before wave 10; its 408-gold reward cannot help defend that wave. A ten-tower mix costs roughly 2,750 gold to fully upgrade, before the additional 105 gold for three dams. The player must choose where to spend rather than max everything.
+
+## Branching routes and dam costs
+
+Dams cost 35 gold each and refund 22 on removal. Six canal crossings can be closed. The initial shortest route is 1,019 units; the original winding route is 2,333 units. Closing the three cross-canals extends the shortest route by 129%. The network starts with eight simple routes. Most boats use the shortest; every third chooses the second-shortest when it is within 50% of the shortest.
+
+Dam purchases validate the full network and each live boat. Complete blockades, trapped boats, and building through an occupied canal are rejected without charging gold. Live boats reroute from their current position. Target priority uses remaining distance to the goal, so a boat on a shortcut is not overlooked merely because it travelled fewer units.
 
 ## Measured campaigns
 
-Run `npm run balance` to reproduce these results. The three explicit layouts are in scripts/balance.mjs. They place towers only between waves, buy a mixture of all three types, expand to ten towers, and start upgrading after reaching eight towers. No selling, mid-wave reinvestment, dynamic difficulty, enemy stat overrides, or perfect target micro is used. Combat runs at a fixed 1/60-second step, as in the browser.
+Run `npm run balance` to reproduce these results. The three explicit purchase plans are in scripts/balance.mjs. They buy two dams and two crossbows for 200 of the starting 220 gold, add the third dam and another crossbow on wave 2, then keep expanding a mixed defence. Purchases happen only between waves, and upgrading begins after eight towers. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. The enemy HP, wave counts, tower stats, and gold economy remain unchanged from the previous balancing pass.
 
-“Furthest” records the greatest path progress of any boat during the wave. Reaching 100% means a leak. This is a spatial safety margin, not a direct damage-capacity percentage.
+“Furthest” is the maximum fraction of a boat's own current route traversed during the wave. Reaching 100% means a leak. The first wave uses a shorter route; the three cross-canal dams force the long route from wave 2 onward.
 
-| Wave | Canal line: furthest | Spread out: furthest | Cannon first: furthest | Escapes, all three |
+| Wave | Locks: furthest | Distributed: furthest | Hybrid: furthest | Escapes, all three |
 |---|---:|---:|---:|---:|
-| 1 | 37.1% | 51.5% | 41.5% | 0 |
-| 2 | 40.2% | 58.5% | 47.1% | 0 |
-| 3 | 47.8% | 88.6% | 67.5% | 0 |
-| 4 | 62.9% | 85.2% | 68.5% | 0 |
-| 5 | 75.6% | 75.6% | 78.4% | 0 |
-| 6 | 73.0% | 73.1% | 70.7% | 0 |
-| 7 | 84.6% | 72.4% | 71.8% | 0 |
-| 8 | 90.8% | 72.2% | 89.3% | 0 |
-| 9 | 90.5% | 81.4% | 83.8% | 0 |
-| 10 | 75.1% | 92.3% | 94.3% | 0 |
+| 1 | 93.9% | 93.9% | 77.4% | 0 |
+| 2 | 84.8% | 80.9% | 79.3% | 0 |
+| 3 | 87.3% | 87.3% | 87.3% | 0 |
+| 4 | 82.5% | 87.0% | 86.2% | 0 |
+| 5 | 74.1% | 74.1% | 74.1% | 0 |
+| 6 | 73.0% | 73.0% | 73.0% | 0 |
+| 7 | 72.2% | 72.2% | 72.2% | 0 |
+| 8 | 73.8% | 74.3% | 73.6% | 0 |
+| 9 | 93.5% | 93.8% | 93.8% | 0 |
+| 10 | 90.2% | 87.7% | 87.7% | 0 |
 
-All three strategies clear every boat in all ten waves. Two layouts clear the final threats at 92–94% of the route, leaving about 130–181 map units before the goal; the stronger canal-line layout retains a larger margin. Final pre-wave spare gold is 18 / 52 / 7 gold, compared with over 1,600 in the original canal-line simulation. Stopping investment after the starting defence loses on wave 3.
+All three plans clear every boat in all ten waves while paying for all dams. Their final threats reach 90.2% / 87.7% / 87.7% of the route. Final pre-wave spare gold is 63 / 63 / 63 gold. Keeping only the initial defence and dams eventually loses the campaign.
 
-The original economy paid 9 / 15 / 25 gold per kill and only scaled HP linearly. The reference defence killed the last wave around 47% of the path and ended with 2,673 unspent gold. The revised economy lowers runaway income, preserves early expansion through the clear bonus, and raises the last wave from roughly 22,082 to 36,336 total HP.
-
-Regression tests require all 30 reference waves to clear, reconcile actual income with the budget, require back-line pressure, and reject a passive starting defence. These deterministic simulations establish a baseline; human playtesting should guide subsequent tuning of perceived difficulty and placement tolerance.
+Regression tests require all 30 reference waves to clear, reconcile actual income with theoretical budgets, account for dam purchases, and apply meaningful pressure to the back line. Routing tests enumerate every dam configuration and ensure no successful purchase disconnects the gate. Human playtesting should guide further tuning of placement tolerance and perceived difficulty.

@@ -1,15 +1,18 @@
 import {Game,towerTypes,enemyTypes,waveProfile,pathLength} from '../engine.js';
 
 export const strategies={
- 'canal-line':[[2,'bolt'],[6,'bolt'],[7,'splash'],[8,'frost'],[11,'bolt'],[12,'splash'],[13,'frost'],[16,'bolt'],[17,'splash'],[18,'frost']],
- 'spread-out':[[6,'bolt'],[11,'bolt'],[8,'frost'],[12,'splash'],[17,'splash'],[13,'frost'],[2,'bolt'],[16,'bolt'],[7,'splash'],[18,'frost']],
- 'cannon-first':[[6,'bolt'],[7,'splash'],[11,'frost'],[12,'bolt'],[17,'splash'],[13,'frost'],[8,'bolt'],[16,'bolt'],[18,'frost'],[2,'splash']]
+ 'locks':[['west-cut','dam'],['centre-cut','dam'],[6,'bolt'],[17,'bolt'],[11,'bolt'],['east-cut','dam'],[8,'frost'],[12,'splash'],[13,'frost'],[7,'splash'],[16,'bolt'],[18,'frost'],[2,'splash']],
+ 'distributed':[['west-cut','dam'],['centre-cut','dam'],[6,'bolt'],[17,'bolt'],[16,'bolt'],['east-cut','dam'],[8,'frost'],[7,'splash'],[13,'frost'],[12,'splash'],[11,'bolt'],[18,'frost'],[2,'splash']],
+ 'hybrid':[['west-cut','dam'],['centre-cut','dam'],[6,'bolt'],[16,'bolt'],[11,'bolt'],['east-cut','dam'],[8,'frost'],[7,'splash'],[13,'frost'],[12,'splash'],[17,'bolt'],[18,'frost'],[2,'splash']]
 };
-export function simulate({strategy='canal-line',dt=1/60,stopAfter=10,invest=true}={}){
+export function simulate({strategy='locks',dt=1/60,stopAfter=10,invest=true}={}){
  const game=new Game(),rows=[];
  for(let wave=1;wave<=stopAfter;wave++){
   if(invest||wave===1){
-   for(const [site,type] of strategies[strategy])if(!game.towers.some(t=>t.site===site)&&game.gold>=towerTypes[type].cost)game.build(site,type);
+   for(const [site,type] of strategies[strategy]){
+    if(type==='dam'){if(!game.dams.includes(site))game.buildDam(site);}
+    else if(!game.towers.some(t=>t.site===site)&&game.gold>=towerTypes[type].cost)game.build(site,type);
+   }
    if(game.towers.length>=8)for(const tower of game.towers)if(game.gold>=game.upgradeCost(tower))game.upgrade(tower);
   }
   const bankBefore=game.gold,healthBefore=game.health;
@@ -19,10 +22,10 @@ export function simulate({strategy='canal-line',dt=1/60,stopAfter=10,invest=true
   while(game.active&&steps++<30000){
    const active=game.enemies;
    game.update(dt);
-   for(const enemy of active)furthest=Math.max(furthest,enemy.distance/pathLength);
+   for(const enemy of active)furthest=Math.max(furthest,enemy.distance/(enemy.routeLength||pathLength));
   }
   if(game.active)throw new Error('Wave failed to finish');
-  rows.push({wave,towers:game.towers.length,levels:game.towers.map(t=>t.level).join(''),income:game.gold-bankBefore,bank:game.gold,leaks:healthBefore-game.health,furthest:+furthest.toFixed(4),duration:+(game.time-start).toFixed(1)});
+  rows.push({wave,towers:game.towers.length,dams:game.dams.length,levels:game.towers.map(t=>t.level).join(''),income:game.gold-bankBefore,bank:game.gold,leaks:healthBefore-game.health,furthest:+furthest.toFixed(4),duration:+(game.time-start).toFixed(1)});
   if(game.status==='lost')break;
  }
  return {status:game.status,rows};
