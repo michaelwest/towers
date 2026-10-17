@@ -8,6 +8,10 @@ export const towerTypes={
  splash:{name:'Bombard',cost:110,range:145,cooldown:1.65,damage:29,color:'#ed9474',description:'Explosive shells bypass Ironclad armour and damage clustered boats. Ground targets only.'},
  frost:{name:'Tidekeeper',cost:85,range:138,cooldown:.95,damage:6,color:'#76d6cd',description:'Slows boats and airships by 48% for 2 seconds. Especially useful against fast smugglers.'}
 };
+export function towerStats(type,level=1){
+ const spec=towerTypes[type],damage=spec.damage*(1+(level-1)*.55),cooldown=spec.cooldown/(1+(level-1)*.12);
+ return {damage,cooldown,range:spec.range+12*(level-1),shotsPerSecond:1/cooldown,dps:damage/cooldown};
+}
 export const enemyTypes=[
  {name:'Skiff',hp:45,speed:69,reward:3,size:10,sprite:'skiff',length:37,width:22,description:'Light canal raider.'},
  {name:'Raider',hp:105,speed:48,reward:5,size:15,sprite:'raider',length:49,width:28,description:'A sturdy raiding boat.'},
@@ -147,8 +151,8 @@ export class Game {
   this.projectiles=this.projectiles.filter(p=>!p.done);
   for(const t of this.towers){
    t.cooldown-=dt;
-   const spec=towerTypes[t.type],p=sites[t.site];
-   const targets=this.enemies.filter(e=>e.hp>0&&!e.escaped&&canTarget(t.type,e)&&Math.hypot(e.x-p[0],e.y-p[1])<=spec.range+12*(t.level-1)).sort((a,b)=>((a.routeLength||pathLength)-a.distance)-((b.routeLength||pathLength)-b.distance));
+   const stats=towerStats(t.type,t.level),p=sites[t.site];
+   const targets=this.enemies.filter(e=>e.hp>0&&!e.escaped&&canTarget(t.type,e)&&Math.hypot(e.x-p[0],e.y-p[1])<=stats.range).sort((a,b)=>((a.routeLength||pathLength)-a.distance)-((b.routeLength||pathLength)-b.distance));
    if(!targets.length)continue;
    let target=targets[0];
    if(t.type==='frost'){
@@ -160,7 +164,7 @@ export class Game {
    const mount=weaponMount(t.type);
    t.aim=Math.atan2(target.y-p[1]-mount[1],target.x-p[0]-mount[0]);
    if(t.cooldown>0)continue;
-   t.cooldown=spec.cooldown/(1+(t.level-1)*.12);
+   t.cooldown=stats.cooldown;
    const origin=muzzlePosition(t.type,p[0],p[1],t.aim);
    const velocity={bolt:480,splash:285,frost:300}[t.type];
    const duration=Math.max(.18,Math.hypot(target.x-origin.x,target.y-origin.y)/velocity);
@@ -169,7 +173,7 @@ export class Game {
    this.projectiles.push({
     ...origin,sx:origin.x,sy:origin.y,tx:destination.x,ty:destination.y,
     target,type:t.type,flying:!!target.flying,site:t.site,age:0,duration,speed:velocity,
-    damage:spec.damage*(1+(t.level-1)*.55)
+    damage:stats.damage
    });
    this.effects.push({...origin,site:t.site,type:t.type,kind:'muzzle',life:.14,max:.14});
   }

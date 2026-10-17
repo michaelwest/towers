@@ -58,3 +58,15 @@ export function drawDirectionalTower(context,image,type,angle,recoil=0) {
     art.mount[1]+(sy-f.pivot[1])*art.scale-dy/length*recoil,
     sw*art.scale,sh*art.scale);
 }
+
+// Include the whole painted building and mounted weapon when selecting a tower.
+export function towerBounds(type,x,y,angle=0){
+ const art=directionalArt[type],base=art?.baseBox||[-27,-49,54,66];
+ let left=base[0],top=base[1],right=left+base[2],bottom=top+base[3];
+ if(art){
+  const {crop:[sx,sy,sw,sh],pivot:[px,py]}=art.frames[aimDirection(angle)];
+  const wx=art.mount[0]+(sx-px)*art.scale,wy=art.mount[1]+(sy-py)*art.scale;
+  left=Math.min(left,wx);top=Math.min(top,wy);right=Math.max(right,wx+sw*art.scale);bottom=Math.max(bottom,wy+sh*art.scale);
+ }
+ return {left:x+left-5,top:y+top-5,right:x+right+5,bottom:y+bottom+5};
+}

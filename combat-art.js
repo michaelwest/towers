@@ -70,6 +70,13 @@ export function drawRaider(c,e,anim,images,flashes){
   if(sprite!=='ironclad'&&!e.flying){c.strokeStyle='#d7b17c';c.lineWidth=2;c.beginPath();c.moveTo(0,3);c.lineTo(0,-24);c.stroke();polygon(c,[[0,-24],[15,-5],[1,-4]],'#f4e7c8');}
  }
  if(e.slow>0){c.strokeStyle='#d9fff6';c.lineWidth=1.2;for(const [x,y,r] of [[-12,-5,4],[9,6,3],[3,-17,4]])snowflake(c,x,y,r);}
+ c.restore();
+}
+// Draw status in a final foreground pass, above piers, towers, the gate and effects.
+export function drawRaiderHealth(c,e,anim){
+ const sprite=e.sprite||['skiff','raider','galleon'][e.kind]||'skiff',art=raiderArt[sprite];
+ const bob=e.flying?Math.sin(anim*.002+e.id)*1.5:0;
+ c.save();c.translate(e.x,e.y+bob);
  const barY=-art.box*.45-5,barW=e.flying?42:34;
  c.fillStyle='#10262ae8';c.fillRect(-barW/2-1,barY-1,barW+2,5);
  c.fillStyle=e.slow>0?'#b0fff0':sprite==='ironclad'?'#b9ced7':e.flying?'#eea984':'#ecc181';c.fillRect(-barW/2,barY,barW*Math.max(0,e.hp/e.maxHp),3);

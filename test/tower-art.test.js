@@ -24,3 +24,12 @@ test('weapons track between shots and effects begin at the painted muzzle',()=>{
   const muzzle=muzzlePosition('bolt',x,y,tower.aim);
   assert.equal(g.effects[0].x,muzzle.x);assert.equal(g.effects[0].y,muzzle.y);assert.equal(g.effects[0].site,0);
 });
+
+test('tower hit bounds include the roof and weapon beyond the mooring',async()=>{
+ const {towerBounds}=await import('../tower-art.js');
+ for(const type of ['bolt','splash','frost']){
+  const bounds=towerBounds(type,300,300,-Math.PI/2);
+  assert.ok(bounds.top<265,'the tower roof must be selectable above the base hit target');
+  assert.ok(bounds.left<300&&bounds.right>300&&bounds.bottom>300);
+ }
+});

@@ -17,3 +17,18 @@ main{padding-top:16px}.utility-controls{display:flex;gap:16px}.utility-controls 
 .wave-control{padding-top:0;border-top:0}
 
 .dam-art{display:grid;place-items:center;width:60px;height:52px;flex-shrink:0}.dam-art canvas{width:60px;height:28px}
+
+/* Upgrade controls remain easy to tap while a wave is running. */
+#tower-detail #upgrade{display:block;width:100%;min-height:52px;margin:12px 0 0;padding:14px 12px;font-size:14px;font-weight:600;background:var(--gold);border-color:var(--gold);color:#19332e;touch-action:manipulation}
+#tower-detail #upgrade:disabled{background:#344e44;border-color:#758c75;color:#b5c4b4;opacity:.75}
+#tower-detail #upgrade[hidden]{display:none}
+#tower-detail #sell{width:100%;min-height:44px;margin:8px 0 0;font-size:12px}
+#tower-detail #close-detail{min-width:44px;min-height:44px;margin:0;flex-shrink:0}
+#upgrade-stats{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+#upgrade-stats th,#upgrade-stats td{padding:8px 0;text-align:right;border-bottom:1px solid #ffffff12}
+#upgrade-stats th:first-child{text-align:left;font-weight:400;color:#b5c4b4}
+#upgrade-stats thead th{font-size:10px;font-weight:500;color:#c9d4c3}
+#upgrade-stats td:last-child{color:#f1d394}
+#upgrade-stats td span{color:#8aa79b}
+#tower-detail #upgrade-traits,#tower-detail #upgrade-status{font-size:11px;line-height:1.5;margin:10px 0 0}
+#tower-detail #upgrade-status{color:#e1ae94}

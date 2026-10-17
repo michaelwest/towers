@@ -59,3 +59,9 @@ The first two waves introduce skiffs and raiders; galleons arrive on wave 4. Fas
 All five watercraft use four separately generated views (east, south, west, north) with a fixed elevated camera. Rendering switches direction at canal turns, keeping masts and sails upright; hull pivots are anchored independently of their source crop. The airship has a dedicated frontal view aligned with its direct approach and renders above buildings, towers, dams and the gate, with a detached ground shadow.
 
 Combat feedback includes brief white hit flashes, silver sparks on armour, cannon blast rings and smoke, frost halos with ice crystals, sinking debris and airborne destruction bursts. Gate hits throw dust and show lost integrity; cracks, soot and embers persist as the Arsenal takes damage. Effects follow simulation time and pause with the game. Reduced-motion preferences suppress continuously animated wakes, bobbing and smoke drift. Counter hints appear briefly when a new raider type first enters, and can be recalled by tapping a raider; tower descriptions and cards identify anti-air capability.
+
+## Tower upgrades
+
+Tap any part of a built tower, including its roof or weapon, to manage it during a wave. Towers take selection priority over overlapping raiders. The full-width upgrade button has a 52-pixel touch target and shows the next level and gold cost. A comparison table shows current and next damage per hit, shots per second, range and DPS per target; a shortfall message explains when more gold is needed. Frost slow strength/duration and cannon blast radius stay unchanged. Displayed values and actual combat use the same stat calculation.
+
+Raider HP bars and status icons render in a final foreground pass above docks, towers, the Arsenal gate and combat effects.

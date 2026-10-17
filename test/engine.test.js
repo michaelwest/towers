@@ -20,3 +20,14 @@ test('waves grow from 9 to 68 boats, with increasing counts and tighter spawns',
  }
  assert.ok(waves[9].some(enemy=>enemy.kind===2));
 });
+
+test('a tower can upgrade during a running wave and use its increased range and damage immediately',()=>{
+ const g=new Game();g.build(0,'bolt');g.startWave();g.queue=[];
+ // This target is just outside level-one range but inside level-two range.
+ const target={distance:255,speed:0,hp:1000,maxHp:1000,slow:0,reward:1,...position(255)};
+ g.enemies=[target];g.update(.01);assert.equal(g.projectiles.length,0);
+ const gold=g.gold;assert.equal(g.upgrade(g.towers[0]),true);assert.equal(g.gold,gold-49);
+ assert.equal(g.active,true);assert.equal(g.status,'playing');g.update(.01);
+ assert.equal(g.projectiles.length,1);assert.equal(g.projectiles[0].damage,19*1.55);
+ assert.equal(g.towers[0].cooldown,.65/1.12);
+});
