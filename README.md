@@ -20,7 +20,7 @@ Tests cover combat, economy, tower upgrades, slowing and splash effects, wave co
 
 ## Play
 
-Select a tower, then tap a circular mooring on the map. Launch a wave when ready. Tap built towers to upgrade or sell. Each kill earns gold, and each cleared wave earns a bonus. Every boat that reaches the southern gate costs one of your 20 integrity points. Survive all ten waves to win. Pause, 2× speed, reset, optional interface sounds, and in-game instructions are included.
+Select a tower, then tap a circular mooring on the map. Launch a wave when ready. Tap built towers to upgrade or sell. Each kill earns gold, and each cleared wave earns a bonus. Every boat that reaches the southern gate costs one of your 20 integrity points. Survive all ten waves to win. Pause, 2× speed, and reset are included.
 
 Google Fonts enhances typography when reachable; system serif and sans-serif fallbacks work offline. Boats, towers, and waterfront buildings use a locally served, image-generated Venetian sprite atlas. Terrain, water, wakes, and combat effects are rendered with Canvas. Procedural fallback art keeps the game playable if the atlas fails to load.
 

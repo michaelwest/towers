@@ -13,3 +13,5 @@ main{padding-top:16px}.utility-controls{display:flex;gap:16px}.utility-controls 
 #board{aspect-ratio:720 / 730}
 
 .dam-art{width:49px;text-align:center;font-size:36px;color:var(--gold)}.map-tip{max-width:90%;white-space:normal;text-align:center;line-height:1.5}.dam-card{margin-top:15px}
+
+.wave-control{padding-top:0;border-top:0}
