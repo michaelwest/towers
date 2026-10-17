@@ -4,9 +4,9 @@ export const W=720, H=730;
 export const pathPoints=[[122,-30],[122,119],[578,119],[578,270],[142,270],[142,424],[578,424],[578,578],[357,578],[357,754]];
 export const sites=[[70,75],[184,65],[295,65],[415,65],[537,65],[632,158],[516,213],[397,213],[245,200],[82,235],[82,350],[205,363],[345,363],[445,363],[633,385],[633,514],[515,516],[367,516],[297,523],[270,652],[454,680],[210,488]];
 export const towerTypes={
- bolt:{name:'Campanile',cost:65,range:155,cooldown:.65,damage:19,color:'#e5bd76',description:'Fast, precise fire against boats and airships. Ironclad armour resists its bolts.'},
- splash:{name:'Bombard',cost:110,range:145,cooldown:1.65,damage:29,color:'#ed9474',description:'Explosive shells bypass Ironclad armour and damage clustered boats. Ground targets only.'},
- frost:{name:'Tidekeeper',cost:85,range:138,cooldown:.95,damage:6,color:'#76d6cd',description:'Slows boats and airships by 48% for 2 seconds. Especially useful against fast smugglers.'}
+ bolt:{name:'Arrow Shooter',cost:65,range:155,cooldown:.65,damage:19,color:'#e5bd76',description:'Fast, precise fire against boats and airships. Ironclad armour resists its bolts.'},
+ splash:{name:'Cannon That Booms',cost:110,range:145,cooldown:1.65,damage:29,color:'#ed9474',description:'Explosive shells bypass Ironclad armour and damage clustered boats. Ground targets only.'},
+ frost:{name:'Ice Shooter',cost:85,range:138,cooldown:.95,damage:6,color:'#76d6cd',description:'Slows boats and airships by 48% for 2 seconds. Especially useful against fast smugglers.'}
 };
 export function towerStats(type,level=1){
  const spec=towerTypes[type],damage=spec.damage*(1+(level-1)*.55),cooldown=spec.cooldown/(1+(level-1)*.12);
@@ -156,7 +156,7 @@ export class Game {
    if(!targets.length)continue;
    let target=targets[0];
    if(t.type==='frost'){
-    // Spread slowing across the fleet, including shots from other Tidekeepers.
+    // Spread slowing across the fleet, including shots from other Ice Shooters.
     const incoming=new Set(this.projectiles.filter(shot=>shot.type==='frost').map(shot=>shot.target));
     target=targets.find(enemy=>enemy.slow<=0&&!incoming.has(enemy))
      ||targets.find(enemy=>!incoming.has(enemy))||target;

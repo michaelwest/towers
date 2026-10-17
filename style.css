@@ -32,3 +32,5 @@ main{padding-top:16px}.utility-controls{display:flex;gap:16px}.utility-controls 
 #upgrade-stats td span{color:#8aa79b}
 #tower-detail #upgrade-traits,#tower-detail #upgrade-status{font-size:11px;line-height:1.5;margin:10px 0 0}
 #tower-detail #upgrade-status{color:#e1ae94}
+
+.tower-copy b{white-space:normal;line-height:1.35}
