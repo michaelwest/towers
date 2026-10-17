@@ -2,6 +2,7 @@ import {Game,W,H,sites,towerTypes} from './engine.js';
 import {paintSprite} from './art.js';
 import {cityLayout,paintCitySprite} from './city.js';
 import {canalEdges,damSites,damCost,findRoutes} from './canals.js';
+import {raiderArt,flashAtlas,drawRaider,drawGateDamage,drawCombatEffect} from './combat-art.js';
 import {directionalArt,drawDirectionalTower} from './tower-art.js';
 const $=id=>document.getElementById(id), canvas=$('board'),ctx=canvas.getContext('2d');
 let game=new Game(),selected='bolt',focus=null,paused=false,speed=1,last=0,feedback=null,hover=-1,damHover=null,damFocus=null,accumulator=0;
@@ -24,6 +25,11 @@ function circle(c,x,y,r,fill,stroke){c.beginPath();c.arc(x,y,r,0,Math.PI*2);if(f
 let seed=187;function rand(){seed=(seed*16807)%2147483647;return (seed-1)/2147483646;}
 function canal(c,width,color){c.lineWidth=width;c.lineCap='round';c.lineJoin='round';c.strokeStyle=color;for(const edge of canalEdges){c.beginPath();c.moveTo(...edge.points[0]);c.lineTo(...edge.points[1]);c.stroke();}}
 function nearPath(x,y,margin){for(const edge of canalEdges){const [a,b]=edge.points,dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((x-a[0])*dx+(y-a[1])*dy)/(dx*dx+dy*dy)));if(Math.hypot(x-a[0]-dx*t,y-a[1]-dy*t)<margin)return true;}return false;}
+const raiderImages={},raiderFlashes={};
+for(const [type,art] of Object.entries(raiderArt)){
+ const image=new Image();image.onload=()=>{raiderImages[type]=image;raiderFlashes[type]=flashAtlas(image);};
+ image.src=new URL('./assets/'+art.file,import.meta.url).href;
+}
 const terrain=new Image();
 let terrainReady=false;
 terrain.onload=()=>{terrainReady=true;makeDecor();};
@@ -75,7 +81,7 @@ resizeBoard();
 new ResizeObserver(resizeBoard).observe(canvas);
 window.addEventListener('resize',resizeBoard);
 function drawTower(c,t){const [x,y]=sites[t.site],spec=towerTypes[t.type];c.save();c.translate(x,y);circle(c,3,5,22,'#152f2b55');circle(c,0,0,21,'#9a9b75','#c2bb91');circle(c,0,0,17,'#576853','#738669');if(directionalImages[t.type]){const shot=game.effects.find(e=>e.site===t.site&&e.kind==='muzzle');drawDirectionalTower(c,directionalImages[t.type],t.type,t.aim,shot?Math.sin(shot.life/shot.max*Math.PI)*2:0);}else if(artReady&&t.type==='frost'){const height=66;paintSprite(c,atlas,t.type,-27,17-height,54,height);if(t.type==='frost'){c.save();c.globalAlpha=.25;circle(c,0,-37,12,'#8bf4e8');c.restore();}}else if(t.type==='bolt'){c.fillStyle='#cbb985';c.fillRect(-10,-17,20,28);c.fillStyle='#a38e65';c.fillRect(3,-17,7,28);poly(c,[[-14,-17],[0,-30],[14,-17]],'#966b4b','#c19461');c.fillStyle='#33463a';c.fillRect(-4,-12,7,10);c.save();c.rotate(t.aim);c.strokeStyle='#e1c58c';c.lineWidth=4;c.beginPath();c.moveTo(1,0);c.lineTo(22,0);c.stroke();c.lineWidth=2;c.beginPath();c.moveTo(17,-10);c.lineTo(20,0);c.lineTo(17,10);c.stroke();c.restore();}else if(t.type==='splash'){circle(c,0,0,13,'#a58c66');c.save();c.rotate(t.aim);c.fillStyle='#283c37';c.fillRect(-5,-8,29,16);c.fillStyle='#6d8172';c.fillRect(-3,-6,24,4);c.fillStyle='#1a302e';c.fillRect(20,-8,5,16);c.restore();circle(c,-6,6,4,'#d4ac73');}else{poly(c,[[-12,10],[0,-24],[12,10]],'#83b5a5','#c3d7ba');poly(c,[[0,-24],[3,7],[12,10]],'#4c968d');circle(c,0,-12,5,'#c3eee0');c.fillStyle='#9ba780';c.fillRect(-14,9,28,5);}if(t.level>1){c.fillStyle=spec.color;for(let i=0;i<t.level;i++)circle(c,(i-(t.level-1)/2)*7,24,2,spec.color);}c.restore();}
-function draw(time){ctx.clearRect(0,0,W,H);ctx.drawImage(decor,0,0,W,H);const anim=reduced?0:time;
+function draw(time){ctx.clearRect(0,0,W,H);ctx.drawImage(decor,0,0,W,H);const anim=reduced?0:game.time*1000;
 // Flow marks cover every open canal, rather than implying one fixed route.
 ctx.save();ctx.strokeStyle='#9bc9b324';ctx.lineWidth=1;
 for(const edge of canalEdges){
@@ -93,16 +99,7 @@ ctx.restore();
 for(let i=0;i<sites.length;i++){if(game.towers.some(t=>t.site===i))continue;const [x,y]=sites[i];const bright=i===hover;circle(ctx,x+2,y+3,20,'#203e3155');circle(ctx,x,y,19,bright?'#bcb38a':'#8c9773','#bdba8c80');circle(ctx,x,y,15,'#576d5544');ctx.save();ctx.setLineDash([3,4]);circle(ctx,x,y,13,null,bright?'#f1db9d':'#d3cc9b88');ctx.restore();ctx.fillStyle=bright?'#f5e1ab':'#cec79a';ctx.font='20px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('+',x,y);}
 const shown=focus||((selected!=='dam'&&hover>=0&&!game.towers.some(t=>t.site===hover))?{site:hover,type:selected,level:1}:null);if(shown){const [x,y]=sites[shown.site];circle(ctx,x,y,towerTypes[shown.type].range+12*(shown.level-1),'#bcdcb610','#d7deae44');}
 for(const t of game.towers)drawTower(ctx,t);
-for(const e of game.enemies){
-ctx.save();ctx.translate(e.x,e.y);ctx.rotate(e.angle);
-const length=[37,49,62][e.kind],width=[22,28,37][e.kind];
-// The wake follows the hull's heading and fades back into the canal.
-ctx.save();ctx.strokeStyle=e.slow>0?'#a6f3e2aa':'#b5e4d375';ctx.lineWidth=1.2;
-for(let i=0;i<3;i++){const offset=(anim*.018+i*8)%26;ctx.globalAlpha=1-offset/30;ctx.beginPath();ctx.moveTo(-length/2-offset,-width/3-offset*.17);ctx.quadraticCurveTo(-length/2-offset-8,0,-length/2-offset,width/3+offset*.17);ctx.stroke();}ctx.restore();
-if(e.slow>0){ctx.shadowColor='#7cf6e7';ctx.shadowBlur=9;}
-if(artReady){paintSprite(ctx,atlas,['skiff','raider','galleon'][e.kind],-length/2,-width/2,length,width);}else{poly(ctx,[[length/2,0],[length/3,-width/2],[-length/2,-width/2],[-length/2,width/2],[length/3,width/2]],['#bd795b','#c09362','#9a6b59'][e.kind],'#e0b180');}
-ctx.restore();ctx.fillStyle='#102e30cc';ctx.fillRect(e.x-16,e.y-width/2-9,32,4);ctx.fillStyle=e.slow>0?'#99eee0':'#ecc181';ctx.fillRect(e.x-15,e.y-width/2-8,30*Math.max(0,e.hp/e.maxHp),2);
-}
+for(const e of game.enemies)if(!e.flying)drawRaider(ctx,e,anim,raiderImages,raiderFlashes);
 // Timber dams span the water, with small marked foundations in placement mode.
 for(const site of damSites){
  const built=game.dams.includes(site.id);if(!built&&selected!=='dam')continue;
@@ -126,6 +123,9 @@ for(const site of damSites){
 }
 // Foreground arch occludes passing boats while its transparent opening reveals the canal.
 if(gateReady)ctx.drawImage(gate,24,70,1585,818,285,642,144,74.3);
+drawGateDamage(ctx,game.health,anim);
+// Airships stay above the city, towers, sluices and the gate.
+for(const e of game.enemies)if(e.flying)drawRaider(ctx,e,anim,raiderImages,raiderFlashes);
 // Compact moving projectiles, with a separate shadow for lofted cannonballs.
 for(const shot of game.projectiles){
  const progress=Math.min(1,shot.age/shot.duration);
@@ -150,19 +150,7 @@ for(const shot of game.projectiles){
  }
  ctx.restore();
 }
-for(const e of game.effects){
- const fade=e.life/e.max;ctx.save();ctx.globalAlpha=fade;
- if(e.kind==='muzzle'){
-  if(e.type==='frost'){circle(ctx,e.x,e.y,6*fade,'#a3f6e6');}
-  else{ctx.shadowColor='#ffd888';ctx.shadowBlur=8;circle(ctx,e.x,e.y,(e.type==='splash'?7:3)*fade,'#ffe3a1');}
- }else{
-  const radius=(e.type==='splash'?57:13)*(1-fade);
-  ctx.strokeStyle=towerTypes[e.type].color;ctx.lineWidth=1.5;
-  circle(ctx,e.x,e.y,radius,e.type==='splash'?'#eab46628':null,towerTypes[e.type].color);
-  if(e.type==='splash')for(let i=0;i<7;i++){const angle=i*Math.PI*2/7;circle(ctx,e.x+Math.cos(angle)*radius*.7,e.y+Math.sin(angle)*radius*.7,2*fade,'#ffdc8d');}
- }
- ctx.restore();
-}
+for(const e of game.effects)drawCombatEffect(ctx,e);
 }
 function ui(){ $('dam-price').textContent='◈ '+damCost; if(selected==='dam'){damChecks.clear();for(const site of damSites)damChecks.set(site.id,game.damCheck(site.id));} $('gold').textContent=game.gold;$('health').textContent=game.health;$('health-fill').style.width=game.health*5+'%';$('start').disabled=game.active||['lost','won'].includes(game.status);$('start').innerHTML=game.active?'Wave '+game.wave+' in progress <span>≈</span>':game.wave===0?'Launch wave <span><i class="arrow" aria-hidden="true"></i></span>':'Launch next wave <span><i class="arrow" aria-hidden="true"></i></span>';$('pause').disabled=!game.active;$('pause').textContent=paused?'Resume':'Pause';$('map-tip').textContent=feedback&&feedback.until>performance.now()?feedback.text:selected==='dam'?(damFocus?'Dam selected · Remove it below':damHover&&!game.dams.includes(damHover)&&!damPreview(damHover).ok?damPreview(damHover).reason:'Tap a marked crossing · ◈ '+damCost):focus?'✧  Tower selected · Manage it below':game.active?'≈  '+(game.enemies.length+game.queue.length)+' raiders remaining':'✧  Tap a marked mooring to build';
  document.querySelectorAll('.tower-card[data-type]').forEach(el=>{el.classList.toggle('selected',el.dataset.type===selected&&!focus);el.setAttribute('aria-pressed',String(el.dataset.type===selected&&!focus));el.classList.toggle('unaffordable',game.gold<towerTypes[el.dataset.type].cost);});
@@ -175,6 +163,9 @@ canvas.addEventListener('click',e=>{
  const edge=damAt(e);
  if(edge&&(selected==='dam'||game.dams.includes(edge))){focus=null;if(game.dams.includes(edge)){damFocus=edge;}else{damFocus=null;if(!game.buildDam(edge))feedback={text:game.notice,until:performance.now()+3000};else feedback=null;}ui();return;}
  if(selected==='dam'){game.notice='Choose one of the marked canal crossings.';ui();return;}
+ const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*W/r.width,y=(e.clientY-r.top)*H/r.height;
+ const raider=[...game.enemies].reverse().find(enemy=>Math.hypot(enemy.x-x,enemy.y-y)<(enemy.flying?32:23));
+ if(raider){focus=null;damFocus=null;feedback={text:raider.name+' · '+raider.description,until:performance.now()+6000};ui();return;}
  const site=siteAt(e);damFocus=null;if(site<0){focus=null;ui();return;}
  const tower=game.towers.find(t=>t.site===site);if(tower){focus=tower;game.notice=towerTypes[tower.type].name+' selected. Upgrade or sell below.';}else{focus=null;if(!game.build(site,selected))feedback={text:game.notice,until:performance.now()+3000};else feedback=null;}ui();
 });
@@ -182,5 +173,5 @@ function showBoard(){if(innerWidth<=680)$('board').scrollIntoView({behavior:redu
 document.querySelectorAll('.tower-card[data-type]').forEach(el=>el.addEventListener('click',()=>{selected=el.dataset.type;feedback=null;focus=null;damFocus=null;game.notice=towerTypes[selected].name+' selected — choose a marked mooring.';ui();showBoard();}));
 $('dam-tool').onclick=()=>{selected='dam';feedback=null;focus=null;damFocus=null;game.notice='Dams close canals. At least one route must stay open.';ui();showBoard();};
 $('start').onclick=()=>{if(game.startWave()){paused=false;feedback=null;ui();if(innerWidth<=680)$('board').scrollIntoView({behavior:reduced?'instant':'smooth',block:'center'});}};$('pause').onclick=()=>{paused=!paused;ui();};$('speed').onclick=()=>{speed=speed===1?2:1;$('speed').textContent=speed+'×  Speed';};
-function reset(){feedback=null;damChecks.clear();accumulator=0;game=new Game();focus=null;damFocus=null;damHover=null;selected='bolt';paused=false;speed=1;$('speed').textContent='1×  Speed';ui();}let resetArmed=false;$('restart').onclick=()=>{if(!resetArmed&&(game.wave||game.towers.length||game.dams.length)){resetArmed=true;$('restart').textContent='Confirm reset?';setTimeout(()=>{resetArmed=false;$('restart').textContent='↻  Reset';},3000);return;}resetArmed=false;$('restart').textContent='↻  Reset';reset();};$('again').onclick=reset;$('upgrade').onclick=()=>{if(focus)game.upgrade(focus);ui();};$('sell').onclick=()=>{if(damFocus){game.removeDam(damFocus);damFocus=null;ui();return;}if(focus){game.sell(focus);focus=null;ui();}};$('close-detail').onclick=()=>{focus=null;damFocus=null;ui();};
-document.addEventListener('visibilitychange',()=>{if(document.hidden&&game.active){paused=true;ui();}last=0;});let uiTimer=0;function frame(now){const dt=last?Math.min((now-last)/1000,.06):0;last=now;if(!paused){accumulator+=dt*speed;while(accumulator>=1/60){game.update(1/60);accumulator-=1/60;}}draw(now);uiTimer+=dt;if(uiTimer>.1){ui();uiTimer=0;}requestAnimationFrame(frame);}ui();requestAnimationFrame(frame);
+function reset(){feedback=null;damChecks.clear();accumulator=0;game=new Game();seenRaiders.clear();focus=null;damFocus=null;damHover=null;selected='bolt';paused=false;speed=1;$('speed').textContent='1×  Speed';ui();}let resetArmed=false;$('restart').onclick=()=>{if(!resetArmed&&(game.wave||game.towers.length||game.dams.length)){resetArmed=true;$('restart').textContent='Confirm reset?';setTimeout(()=>{resetArmed=false;$('restart').textContent='↻  Reset';},3000);return;}resetArmed=false;$('restart').textContent='↻  Reset';reset();};$('again').onclick=reset;$('upgrade').onclick=()=>{if(focus)game.upgrade(focus);ui();};$('sell').onclick=()=>{if(damFocus){game.removeDam(damFocus);damFocus=null;ui();return;}if(focus){game.sell(focus);focus=null;ui();}};$('close-detail').onclick=()=>{focus=null;damFocus=null;ui();};
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&game.active){paused=true;ui();}last=0;});let seenRaiders=new Set();let uiTimer=0;function frame(now){const dt=last?Math.min((now-last)/1000,.06):0;last=now;if(!paused){accumulator+=dt*speed;while(accumulator>=1/60){game.update(1/60);accumulator-=1/60;}}for(const enemy of game.enemies)if(enemy.kind>=3&&!seenRaiders.has(enemy.kind)&&(!feedback||feedback.until<performance.now())){seenRaiders.add(enemy.kind);feedback={text:enemy.name+' · '+enemy.description,until:performance.now()+5000};break;}draw(now);uiTimer+=dt;if(uiTimer>.1){ui();uiTimer=0;}requestAnimationFrame(frame);}ui();requestAnimationFrame(frame);

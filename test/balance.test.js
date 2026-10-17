@@ -26,6 +26,6 @@ test('wave health and income rise without an unaffordable health cliff',()=>{
   assert.ok(budgets[i].totalHp>budgets[i-1].totalHp);
   assert.ok(budgets[i].totalGold>budgets[i-1].totalGold);
  }
- assert.equal(budgets.reduce((sum,row)=>sum+row.totalGold,220),2596);
- assert.equal(budgets.at(-1).totalHp,36336);
+ assert.equal(budgets.reduce((sum,row)=>sum+row.totalGold,220),2636);
+ assert.equal(budgets.at(-1).totalHp,34588);
 });

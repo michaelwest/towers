@@ -6,7 +6,7 @@ const types = {'.html':'text/html','.js':'text/javascript','.css':'text/css','.s
 http.createServer(async (req,res) => {
   try {
     const pathname = decodeURIComponent(new URL(req.url,'http://localhost').pathname);
-    if (!['/', '/index.html', '/style.css', '/app.js', '/engine.js', '/canals.js', '/city.js', '/assets/city-districts.png', '/assets/canal-dam.png', '/assets/venice-paving.png', '/art.js', '/tower-art.js', '/assets/crossbow-directions.png', '/assets/cannon-directions.png', '/assets/venice-atlas.png', '/assets/venice-stone.png', '/assets/arsenal-gate.png'].includes(pathname)) throw Error();
+    if (!['/', '/index.html', '/style.css', '/app.js', '/engine.js', '/canals.js', '/city.js', '/assets/city-districts.png', '/assets/canal-dam.png', '/assets/venice-paving.png', '/art.js', '/tower-art.js', '/combat-art.js', '/assets/skiff-views.png', '/assets/raider-views.png', '/assets/galleon-views.png', '/assets/ironclad-views.png', '/assets/smuggler-views.png', '/assets/airship.png', '/assets/crossbow-directions.png', '/assets/cannon-directions.png', '/assets/venice-atlas.png', '/assets/venice-stone.png', '/assets/arsenal-gate.png'].includes(pathname)) throw Error();
     const file = path.resolve(root, '.' + (pathname === '/' ? '/index.html' : pathname));
     if (!file.startsWith(root + '/')) throw Error();
     const body = await readFile(file);

@@ -9,10 +9,10 @@ export const strategies={
   [['west-cut','dam']], // Wave 4
   [[18,'bolt'],[13,'splash']], // Wave 5
   [['east-cut','dam'],[7,'splash']], // Wave 6
-  [['centre-cut','dam'],[16,'frost']], // Wave 7
+  [['centre-cut','dam'],[16,'frost'],[17,'upgrade']], // Wave 7
   [[13,'upgrade'],[7,'upgrade'],[8,'upgrade']], // Wave 8
   [[13,'upgrade'],[7,'upgrade']], // Wave 9
-  [[16,'upgrade'],[16,'upgrade'],[17,'upgrade'],[17,'upgrade'],[12,'upgrade'],[18,'upgrade']] // Wave 10
+  [[16,'upgrade'],[16,'upgrade'],[17,'upgrade'],[12,'upgrade'],[18,'upgrade']] // Wave 10
  ],
  frostFinish:[
   [[8,'bolt'],[12,'bolt'],[17,'bolt']], // Wave 1
@@ -21,10 +21,10 @@ export const strategies={
   [['west-cut','dam']], // Wave 4
   [[18,'bolt'],[13,'splash']], // Wave 5
   [['east-cut','dam'],[7,'splash']], // Wave 6
-  [['centre-cut','dam'],[16,'frost']], // Wave 7
+  [['centre-cut','dam'],[16,'frost'],[17,'upgrade']], // Wave 7
   [[13,'upgrade'],[7,'upgrade'],[8,'upgrade']], // Wave 8
   [[13,'upgrade'],[7,'upgrade']], // Wave 9
-  [[19,'frost'],[16,'upgrade'],[17,'upgrade'],[17,'upgrade'],[12,'upgrade'],[18,'upgrade']] // Wave 10
+  [[19,'frost'],[16,'upgrade'],[17,'upgrade'],[12,'upgrade'],[18,'upgrade'],[11,'upgrade']] // Wave 10
  ]
 };
 export function simulate({strategy='upgradeFinish',dt=1/60,stopAfter=10,invest=true}={}){

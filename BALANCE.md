@@ -18,26 +18,34 @@ The Bombard does 35.15 / 52.73 effective base DPS when each shot catches two / t
 
 ## Enemies and wave budgets
 
-Base HP is 45 / 105 / 240; each wave applies its configured multiplier and rounds HP to the nearest integer. Speed is 69 / 48 / 31 map units per second. Kill rewards are **3 / 5 / 8 gold** for skiffs / raiders / galleons. Starting treasury is 220, and clearing a wave grants **80 gold**, even if some boats escaped. Escaped boats grant no kill reward. The reliable clear bonus funds expansion without requiring perfect early play.
+Base HP is 45 / 105 / 240 for the original skiffs / raiders / galleons; each wave applies its configured multiplier and rounds HP to the nearest integer. Their speeds are 69 / 48 / 31 map units per second and kill rewards are **3 / 5 / 8 gold**. Added raiders use the same wave HP multiplier:
+
+| Added type | Base HP | Speed | Kill gold | Trait / counter |
+|---|---:|---:|---:|---|
+| Ironclad | 150 | 30 | 8 | Resists 65% of bolts; cannons deal full damage |
+| Smuggler | 36 | 96 | 4 | Fast and fragile; frost slows it to 49.92 speed |
+| Airship | 85 | 36 | 12 | Direct 768-unit flight; crossbows and frost can hit it, cannons cannot; deals 3 gate damage |
+
+Starting treasury is 220, and clearing a wave grants **80 gold**, even if some boats escaped. Escaped boats grant no kill reward. The reliable clear bonus funds expansion without requiring perfect early play.
 
 The open network has eight routes; the shortest is 1,225 units. Dams can force a journey of up to 2,333 units. On that longest route, before slowing, a full journey takes 33.8 / 48.6 / 75.3 seconds. Actual tower uptime depends on placement; towers never deliver their headline DPS for the entire journey.
 
-| Wave | Skiffs / Raiders / Galleons | HP each (S / R / G) | Total HP | Spawn interval | Kill gold | Clear bonus | Full-clear income |
-|---|---|---|---:|---:|---:|---:|---:|
-| 1 | 9 / 0 / 0 | 74 / — / — | 666 | 0.95s | 27 | 80 | 107 |
-| 2 | 8 / 4 / 0 | 95 / 221 / — | 1,644 | 0.90s | 44 | 80 | 124 |
-| 3 | 10 / 6 / 0 | 110 / 257 / — | 2,642 | 0.85s | 60 | 80 | 140 |
-| 4 | 8 / 8 / 5 | 119 / 278 / 636 | 6,356 | 0.80s | 104 | 80 | 184 |
-| 5 | 10 / 11 / 6 | 131 / 305 / 696 | 8,841 | 0.75s | 133 | 80 | 213 |
-| 6 | 14 / 13 / 7 | 144 / 336 / 768 | 11,760 | 0.70s | 163 | 80 | 243 |
-| 7 | 16 / 16 / 9 | 158 / 368 / 840 | 15,976 | 0.65s | 200 | 80 | 280 |
-| 8 | 19 / 20 / 10 | 169 / 394 / 900 | 20,091 | 0.60s | 237 | 80 | 317 |
-| 9 | 23 / 23 / 12 | 207 / 483 / 1104 | 29,118 | 0.55s | 280 | 80 | 360 |
-| 10 | 27 / 27 / 14 | 221 / 515 / 1176 | 36,336 | 0.50s | 328 | 80 | 408 |
+| Wave | Counts (S / R / G / Iron / Smuggler / Air) | HP multiplier | Total HP | Spawn interval | Kill gold | Clear bonus | Full-clear income |
+|---|---|---:|---:|---:|---:|---:|---:|
+| 1 | 9 / 0 / 0 / 0 / 0 / 0 | 1.65 | 666 | 0.95s | 27 | 80 | 107 |
+| 2 | 8 / 4 / 0 / 0 / 0 / 0 | 2.1 | 1,644 | 0.90s | 44 | 80 | 124 |
+| 3 | 9 / 6 / 0 / 0 / 1 / 0 | 2.45 | 2,620 | 0.85s | 61 | 80 | 141 |
+| 4 | 7 / 8 / 5 / 0 / 1 / 0 | 2.65 | 6,332 | 0.80s | 105 | 80 | 185 |
+| 5 | 9 / 11 / 4 / 2 / 1 / 0 | 2.9 | 8,292 | 0.75s | 134 | 80 | 214 |
+| 6 | 12 / 12 / 5 / 2 / 2 / 1 | 3.2 | 11,062 | 0.70s | 172 | 80 | 252 |
+| 7 | 14 / 16 / 6 / 3 / 2 / 0 | 3.5 | 14,967 | 0.65s | 202 | 80 | 282 |
+| 8 | 16 / 19 / 7 / 3 / 3 / 1 | 3.75 | 18,903 | 0.60s | 247 | 80 | 327 |
+| 9 | 20 / 23 / 8 / 4 / 3 / 0 | 4.6 | 27,339 | 0.55s | 283 | 80 | 363 |
+| 10 | 22 / 27 / 10 / 4 / 4 / 1 | 4.9 | 34,588 | 0.50s | 341 | 80 | 421 |
 
 Enemy count = 9 + 3n + floor(0.4n²), where n = wave − 1. Spawn interval = max(0.5, 0.95 − 0.05n). HP multipliers are a deliberately tuned per-wave table in engine.js; heavier boats first appear on wave 4.
 
-Perfect clears earn 2376 gold, or 2,596 including the initial treasury. Only 2,188 is available before wave 10; its 408-gold reward cannot help defend that wave. Fully upgrading seven crossbows, two cannons, and one frost tower costs 2,477 gold (2,754 with the optional second frost tower), before the additional 375 gold for three dams. The player must choose where to spend rather than max everything.
+Perfect clears earn 2,416 gold, or 2,636 including the initial treasury. Only 2,215 is available before wave 10; its 421-gold reward cannot help defend that wave. Fully upgrading seven crossbows, two cannons, and one frost tower costs 2,477 gold (2,754 with the optional second frost tower), before the additional 375 gold for three dams. The player must choose where to spend rather than max everything.
 
 ## Branching routes and dam costs
 
@@ -55,7 +63,7 @@ Dam purchases validate the full network and each live boat. Complete blockades, 
 
 ## Measured campaigns
 
-Run `npm run balance` to reproduce these results. The two explicit purchase schedules are in scripts/balance.mjs. They begin with three crossbows for 195 of the starting 220 gold, buy the first dam before wave 4, and use it alone through wave 5. The other dams follow before waves 6 and 7. Purchases happen only between waves. Every purchase must succeed at its actual price; the simulator rejects unaffordable plans. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. Enemy HP, wave counts, tower stats, starting gold, and wave income are unchanged.
+Run `npm run balance` to reproduce these results. The two explicit purchase schedules are in scripts/balance.mjs. They begin with three crossbows for 195 of the starting 220 gold, buy the first dam before wave 4, and use it alone through wave 5. The other dams follow before waves 6 and 7. Purchases happen only between waves. Every purchase must succeed at its actual price; the simulator rejects unaffordable plans. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. Wave counts, tower stats, starting gold and the 80-gold clear bonus are unchanged. Added enemies replace selected existing spawns; Smugglers begin on wave 3, Ironclads on wave 5, and exactly one airship appears on each of waves 6, 8 and 10. The schedules move one back-line upgrade forward to wave 7 to counter the new mix.
 
 “Furthest” is the maximum fraction of a boat's own current route traversed during the wave. Reaching 100% means a leak. The opening uses the open network; routes lengthen as dams become affordable.
 
@@ -63,15 +71,17 @@ Run `npm run balance` to reproduce these results. The two explicit purchase sche
 |---|---:|---:|---:|
 | 1 | 59.9% | 59.9% | 0 |
 | 2 | 69.0% | 69.0% | 0 |
-| 3 | 80.0% | 80.0% | 0 |
+| 3 | 75.9% | 75.9% | 0 |
 | 4 | 85.5% | 85.5% | 0 |
-| 5 | 79.1% | 79.1% | 0 |
-| 6 | 91.7% | 91.7% | 0 |
-| 7 | 93.0% | 93.0% | 0 |
-| 8 | 90.2% | 90.2% | 0 |
-| 9 | 96.0% | 96.0% | 0 |
-| 10 | 90.5% | 90.8% | 0 |
+| 5 | 80.0% | 80.0% | 0 |
+| 6 | 96.5% | 96.5% | 0 |
+| 7 | 88.8% | 88.8% | 0 |
+| 8 | 73.8% | 73.8% | 0 |
+| 9 | 85.6% | 85.6% | 0 |
+| 10 | 90.8% | 89.4% | 0 |
 
-Both plans clear every boat in all ten waves while paying 375 gold for three dams. They use the same mixed defence through wave 9, then either invest in existing towers or add a second frost tower at the exit. Their final threats reach 90.5% / 90.8% of the route, with 22 / 65 gold left before the final wave. Wave 9 reaches 96.0%. Keeping only the initial defence eventually loses the campaign.
+Both plans clear every raider in all ten waves while paying 375 gold for three dams. They use the same mixed defence through wave 9, then either invest in existing towers or add a second frost tower at the exit. Final threats reach 90.8% / 89.4% of their own route, with 49 / 43 gold left before the final wave. Wave 6 reaches 96.5%, so the mid-campaign is also pressured. Keeping only the initial defence eventually loses the campaign.
+
+Armour makes raw HP totals incomplete: a 150-HP Ironclad requires 428.6 raw bolt damage, compared with 150 cannon damage. A base crossbow delivers 10.23 DPS against it rather than 29.23; a cannon retains 17.58 DPS per enemy hit. Airship route length is independent of dams; closing canals changes neither flight progress nor position. Its higher gate damage cannot be avoided by finishing a wave with it still in the air. The tests require complete clears of all six enemy types and reconcile their actual rewards.
 
 Regression tests require all 20 reference waves to clear, reconcile actual income with theoretical budgets, account for dam purchases, and apply meaningful pressure to the back line. Routing tests enumerate every dam configuration, require each additional dam to extend the route, and ensure no successful purchase disconnects the gate. Human playtesting should guide further tuning of placement tolerance and perceived difficulty.

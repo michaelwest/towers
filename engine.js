@@ -4,15 +4,34 @@ export const W=720, H=730;
 export const pathPoints=[[122,-30],[122,119],[578,119],[578,270],[142,270],[142,424],[578,424],[578,578],[357,578],[357,754]];
 export const sites=[[70,75],[184,65],[295,65],[415,65],[537,65],[632,158],[516,213],[397,213],[245,200],[82,235],[82,350],[205,363],[345,363],[445,363],[633,385],[633,514],[515,516],[367,516],[297,523],[270,652],[454,680],[210,488]];
 export const towerTypes={
- bolt:{name:'Campanile',cost:65,range:155,cooldown:.65,damage:19,color:'#e5bd76',description:'A dependable, single-target crossbow.'},
- splash:{name:'Bombard',cost:110,range:145,cooldown:1.65,damage:29,color:'#ed9474',description:'Cannon fire damages clustered boats.'},
- frost:{name:'Tidekeeper',cost:85,range:138,cooldown:.95,damage:6,color:'#76d6cd',description:'Slows enemies by 48% for 2 seconds.'}
+ bolt:{name:'Campanile',cost:65,range:155,cooldown:.65,damage:19,color:'#e5bd76',description:'Fast, precise fire against boats and airships. Ironclad armour resists its bolts.'},
+ splash:{name:'Bombard',cost:110,range:145,cooldown:1.65,damage:29,color:'#ed9474',description:'Explosive shells bypass Ironclad armour and damage clustered boats. Ground targets only.'},
+ frost:{name:'Tidekeeper',cost:85,range:138,cooldown:.95,damage:6,color:'#76d6cd',description:'Slows boats and airships by 48% for 2 seconds. Especially useful against fast smugglers.'}
 };
-export const enemyTypes=[{name:'Skiff',hp:45,speed:69,reward:3,size:10},{name:'Raider',hp:105,speed:48,reward:5,size:15},{name:'Galleon',hp:240,speed:31,reward:8,size:21}];
+export const enemyTypes=[
+ {name:'Skiff',hp:45,speed:69,reward:3,size:10,sprite:'skiff',length:37,width:22,description:'Light canal raider.'},
+ {name:'Raider',hp:105,speed:48,reward:5,size:15,sprite:'raider',length:49,width:28,description:'A sturdy raiding boat.'},
+ {name:'Galleon',hp:240,speed:31,reward:8,size:21,sprite:'galleon',length:62,width:37,description:'Heavy hull. Cannon blasts and frost work well together.'},
+ {name:'Ironclad',hp:150,speed:30,reward:8,size:23,sprite:'ironclad',length:61,width:36,boltMultiplier:.35,description:'Armoured: resists 65% of bolt damage. Cannon blasts bypass its armour.'},
+ {name:'Smuggler',hp:36,speed:96,reward:4,size:10,sprite:'smuggler',length:43,width:23,description:'Fast and fragile. Frost holds it in range; crossbows track it reliably.'},
+ {name:'Airship',hp:85,speed:36,reward:12,size:25,sprite:'airship',length:76,width:40,flying:true,gateDamage:3,description:'Flies straight to the gate, ignoring dams. Use crossbows and frost; cannons cannot hit it. Deals 3 gate damage.'}
+];
+export const airRoute=[[122,-45],[357,686]];
+export const airRouteLength=Math.hypot(airRoute[1][0]-airRoute[0][0],airRoute[1][1]-airRoute[0][1]);
+export function canTarget(type,enemy){return type!=='splash'||!enemy.flying;}
+export function hitDamage(enemy,damage,type){return damage*(type==='bolt'?(enemy.boltMultiplier??1):1);}
+
 export const balance={startingGold:220,clearBonus:80,hpMultipliers:[1.65,2.1,2.45,2.65,2.9,3.2,3.5,3.75,4.6,4.9]};
 export function waveProfile(wave){
  const progression=wave-1,count=9+progression*3+Math.floor(progression*progression*.4);
- const spawnOrder=Array.from({length:count},(_,i)=>wave<2?0:wave<4?(i%3===0?1:0):i%5===0?2:i%2===0?1:0);
+ const spawnOrder=Array.from({length:count},(_,i)=>{
+  const original=wave<2?0:wave<4?(i%3===0?1:0):i%5===0?2:i%2===0?1:0;
+  if(wave>=5&&i%15===10)return 3;
+  if(wave>=3&&original===0&&i%7===5)return 4;
+  return original;
+ });
+ // Three airships in the entire campaign: teach the threat, then revisit it sparsely.
+ if(wave>=6&&wave%2===0)spawnOrder[Math.floor(count*.55)]=5;
  return {count,spawnInterval:Math.max(.5,.95-progression*.05),hpMultiplier:balance.hpMultipliers[progression],clearBonus:balance.clearBonus,spawnOrder};
 }
 const segments=pathPoints.slice(1).map((p,i)=>Math.hypot(p[0]-pathPoints[i][0],p[1]-pathPoints[i][1]));
@@ -40,7 +59,7 @@ export class Game {
   const closed=[...this.dams,edgeId];
   if(!findRoutes(closed).length)return {ok:false,reason:'Keep at least one route to the gate open.'};
   for(const enemy of this.enemies){
-   if(enemy.escaped||enemy.hp<=0)continue;
+   if(enemy.flying||enemy.escaped||enemy.hp<=0)continue;
    if(locationOnNetwork(enemy)?.edge?.id===edgeId)return {ok:false,reason:'A boat is in this canal. Wait until it passes.'};
    if(!routesFromPoint(enemy,closed).length)return {ok:false,reason:'This dam would trap a boat. Keep an escape route open.'};
   }
@@ -61,7 +80,7 @@ export class Game {
  rerouteBoats(){
   this.routes=findRoutes(this.dams);
   for(const enemy of this.enemies){
-   if(enemy.hp<=0||enemy.escaped)continue;
+   if(enemy.flying||enemy.hp<=0||enemy.escaped)continue;
    const route=chooseRoute(routesFromPoint(enemy,this.dams),enemy.id);
    if(route){enemy.routePoints=route.points;enemy.routeLength=route.length;enemy.distance=0;}
   }
@@ -80,14 +99,19 @@ export class Game {
   this.effects=this.effects.filter(e=>(e.life-=dt)>0);
   while(this.queue.length&&this.queue[0].at<=this.time){
    const q=this.queue.shift(),k=enemyTypes[q.kind],hp=Math.round(k.hp*waveProfile(this.wave).hpMultiplier);
-   const id=++this.lastId,route=chooseRoute(this.routes,id);
-   this.enemies.push({...k,hp,maxHp:hp,kind:q.kind,distance:0,slow:0,id,routePoints:route.points,routeLength:route.length,...position(0,route.points)});
+   const id=++this.lastId,route=k.flying?{points:airRoute,length:airRouteLength}:chooseRoute(this.routes,id);
+   this.enemies.push({...k,hp,maxHp:hp,kind:q.kind,distance:0,slow:0,hit:0,id,routePoints:route.points,routeLength:route.length,...position(0,route.points)});
   }
   for(const e of this.enemies){
+   if(e.hp<=0||e.escaped)continue;
+   e.hit=Math.max(0,(e.hit||0)-dt);
    e.slow=Math.max(0,e.slow-dt);
    e.distance+=e.speed*(e.slow>0?.52:1)*dt;
    Object.assign(e,position(e.distance,e.routePoints));
-   if(e.distance>=(e.routeLength||pathLength)){e.escaped=true;this.health=Math.max(0,this.health-1);}
+   if(e.distance>=(e.routeLength||pathLength)){
+    e.escaped=true;const damage=e.gateDamage||1;this.health=Math.max(0,this.health-damage);
+    this.effects.push({kind:'gate-hit',x:357,y:686,damage,life:.85,max:.85});
+   }
   }
   // Damage is resolved at arrival, never when a tower starts its shot.
   for(const shot of this.projectiles){
@@ -99,7 +123,7 @@ export class Game {
     if(progress>=1){
      shot.done=true;
      for(const enemy of this.enemies){
-      if(enemy.hp>0&&!enemy.escaped&&Math.hypot(enemy.x-shot.tx,enemy.y-shot.ty)<57)enemy.hp-=shot.damage;
+      if(enemy.hp>0&&!enemy.escaped&&canTarget('splash',enemy)&&Math.hypot(enemy.x-shot.tx,enemy.y-shot.ty)<57)this.hit(enemy,shot.damage,shot.type);
      }
      this.impact(shot);
     }
@@ -110,7 +134,7 @@ export class Game {
     if(distance<=step){
      shot.x=shot.tx;shot.y=shot.ty;shot.done=true;
      if(target.hp>0&&!target.escaped){
-      target.hp-=shot.damage;
+      this.hit(target,shot.damage,shot.type);
       if(shot.type==='frost')target.slow=2;
       this.impact(shot);
      }
@@ -124,7 +148,7 @@ export class Game {
   for(const t of this.towers){
    t.cooldown-=dt;
    const spec=towerTypes[t.type],p=sites[t.site];
-   const targets=this.enemies.filter(e=>e.hp>0&&!e.escaped&&Math.hypot(e.x-p[0],e.y-p[1])<=spec.range+12*(t.level-1)).sort((a,b)=>((a.routeLength||pathLength)-a.distance)-((b.routeLength||pathLength)-b.distance));
+   const targets=this.enemies.filter(e=>e.hp>0&&!e.escaped&&canTarget(t.type,e)&&Math.hypot(e.x-p[0],e.y-p[1])<=spec.range+12*(t.level-1)).sort((a,b)=>((a.routeLength||pathLength)-a.distance)-((b.routeLength||pathLength)-b.distance));
    if(!targets.length)continue;
    let target=targets[0];
    if(t.type==='frost'){
@@ -144,12 +168,15 @@ export class Game {
    const destination=t.type==='splash'?position(target.distance+target.speed*(target.slow>0?.52:1)*duration,target.routePoints):target;
    this.projectiles.push({
     ...origin,sx:origin.x,sy:origin.y,tx:destination.x,ty:destination.y,
-    target,type:t.type,site:t.site,age:0,duration,speed:velocity,
+    target,type:t.type,flying:!!target.flying,site:t.site,age:0,duration,speed:velocity,
     damage:spec.damage*(1+(t.level-1)*.55)
    });
    this.effects.push({...origin,site:t.site,type:t.type,kind:'muzzle',life:.14,max:.14});
   }
-  for(const e of this.enemies)if(e.hp<=0&&!e.escaped){this.gold+=e.reward;this.kills++;}
+  for(const e of this.enemies)if(e.hp<=0&&!e.escaped){
+   this.gold+=e.reward;this.kills++;
+   this.effects.push({kind:e.flying?'air-burst':'sink',x:e.x,y:e.y,angle:e.angle,size:e.size||10,reward:e.reward,special:e.kind>=3,life:.75,max:.75});
+  }
   this.enemies=this.enemies.filter(e=>e.hp>0&&!e.escaped);
   if(this.health<=0){this.status='lost';this.active=false;this.projectiles=[];this.notice='The lagoon has fallen.';return;}
   if(this.active&&!this.queue.length&&!this.enemies.length&&!this.projectiles.length){
@@ -158,8 +185,11 @@ export class Game {
    else{this.status='ready';this.notice='Wave cleared! Reinforce your defences.';}
   }
  }
+ hit(enemy,damage,type){
+  enemy.hp-=hitDamage(enemy,damage,type);enemy.hit=.14;enemy.hitType=type;
+ }
  impact(shot){
-  const life=shot.type==='splash'?.38:.22;
-  this.effects.push({x:shot.x,y:shot.y,type:shot.type,kind:'impact',life,max:life});
+  const life=shot.type==='splash'?.55:.3;
+  this.effects.push({x:shot.x,y:shot.y,type:shot.type,kind:'impact',flying:shot.flying,armoured:shot.type==='bolt'&&shot.target?.boltMultiplier<1,life,max:life});
  }
 }

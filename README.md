@@ -20,7 +20,7 @@ Tests cover combat, economy, tower upgrades, slowing and splash effects, wave co
 
 ## Play
 
-Select a tower, then tap a circular mooring on the map. Launch a wave when ready. Tap built towers to upgrade or sell. Each kill earns gold, and each cleared wave earns a bonus. Every boat that reaches the southern gate costs one of your 20 integrity points. Survive all ten waves to win. Pause, 2× speed, and reset are included.
+Select a tower, then tap a circular mooring on the map. Launch a wave when ready. Tap built towers to upgrade or sell. Each kill earns gold, and each cleared wave earns a bonus. Water raiders cost one integrity point on reaching the gate; an airship costs three. Tap a raider to inspect its traits and counters. Survive all ten waves to win. Pause, 2× speed, and reset are included.
 
 Google Fonts enhances typography when reachable; system serif and sans-serif fallbacks work offline. Boats, towers, and waterfront buildings use a locally served, image-generated Venetian sprite atlas. Terrain, water, wakes, and combat effects are rendered with Canvas. Procedural fallback art keeps the game playable if the atlas fails to load.
 
@@ -51,3 +51,11 @@ The balance simulations now include dam purchases, with no change to starting go
 The generated district atlas adds nine scenery types: dense homes, Gothic palazzi, warehouses, market stalls, well piazzas, courtyard gardens, single townhouses, artisan workshops, and civic halls. A deterministic layout packs 69 parcels across the dry land, with open markets and gardens contrasting with denser residential blocks. Canal water, dam crossings, tower moorings, the basilica, and the Arsenal gate have reserved clearance. The scenery is composited once into the high-resolution background cache and rebuilt only when assets load or the viewport changes.
 
 Dams use a generated oak-and-bronze sluice sprite with pale stone piers and a winding wheel, shared by the battlefield and purchase card. The lighter limestone background replaces the rough mossy cobbles to reduce visual noise behind the city.
+
+## Raider types and combat feedback
+
+The first two waves introduce skiffs and raiders; galleons arrive on wave 4. Fast, fragile **Smugglers** arrive on wave 3; use frost to hold them in range and crossbows to track them. **Ironclads** arrive on wave 5: their riveted hulls resist 65% of bolt damage, while cannon blasts bypass the armour. **Airships** appear once each on waves 6, 8 and 10. They fly directly to the Arsenal, ignore canals and dams, take three integrity on arrival, and can be targeted by crossbows and frost. Ground-only cannons cannot target or splash them.
+
+All five watercraft use four separately generated views (east, south, west, north) with a fixed elevated camera. Rendering switches direction at canal turns, keeping masts and sails upright; hull pivots are anchored independently of their source crop. The airship has a dedicated frontal view aligned with its direct approach and renders above buildings, towers, dams and the gate, with a detached ground shadow.
+
+Combat feedback includes brief white hit flashes, silver sparks on armour, cannon blast rings and smoke, frost halos with ice crystals, sinking debris and airborne destruction bursts. Gate hits throw dust and show lost integrity; cracks, soot and embers persist as the Arsenal takes damage. Effects follow simulation time and pause with the game. Reduced-motion preferences suppress continuously animated wakes, bobbing and smoke drift. Counter hints appear briefly when a new raider type first enters, and can be recalled by tapping a raider; tower descriptions and cards identify anti-air capability.
