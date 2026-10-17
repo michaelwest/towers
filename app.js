@@ -1,5 +1,6 @@
 import {Game,W,H,sites,towerTypes} from './engine.js';
 import {paintSprite} from './art.js';
+import {cityLayout,paintCitySprite} from './city.js';
 import {canalEdges,damSites,damCost,findRoutes} from './canals.js';
 import {directionalArt,drawDirectionalTower} from './tower-art.js';
 const $=id=>document.getElementById(id), canvas=$('board'),ctx=canvas.getContext('2d');
@@ -31,6 +32,10 @@ const gate=new Image();
 let gateReady=false;
 gate.onload=()=>{gateReady=true;makeDecor();};
 gate.src=new URL('./assets/arsenal-gate.png',import.meta.url).href;
+const cityArt=new Image();
+let cityReady=false;
+cityArt.onload=()=>{cityReady=true;makeDecor();};
+cityArt.src=new URL('./assets/city-districts.png',import.meta.url).href;
 const atlas=new Image();
 let artReady=false,buildingIndex=0;
 atlas.src=new URL('./assets/venice-atlas.png',import.meta.url).href;
@@ -39,7 +44,7 @@ function updateTowerIcons(){if(!artReady)return;document.querySelectorAll('.towe
 for(const [type,art] of Object.entries(directionalArt)){const image=new Image();image.onload=()=>{directionalImages[type]=image;updateTowerIcons();};image.src=new URL('./assets/'+art.file,import.meta.url).href;}
 atlas.onload=()=>{artReady=true;makeDecor();updateTowerIcons();};
 atlas.onerror=()=>{game.notice='Illustrations unavailable. Using the built-in map artwork.';};
-function house(x,y,w,h,color){if(nearPath(x+w/2,y+h/2,42+Math.min(w,h)/3))return;if(artReady){const kind=buildingIndex++%2?'townhouses':'palazzo';paintSprite(d,atlas,kind,x-6,y,w+14,h+10);return;}d.fillStyle='#142e2b66';d.fillRect(x+7,y+8,w,h);d.fillStyle=color;d.fillRect(x,y,w,h);d.fillStyle='#ad9c73';d.fillRect(x,y+h-8,w,8);poly(d,[[x-3,y],[x+w/2,y-13],[x+w+3,y],[x+w/2,y+12]],'#89674d','#4b5547');d.fillStyle='#b78660';d.fillRect(x+2,y,w-4,3);d.fillStyle='#263c35';for(let i=7;i<w-4;i+=12){d.fillRect(x+i,y+15,5,9);if(h>40)d.fillRect(x+i,y+30,5,8);}d.fillStyle='#d1b680';d.fillRect(x+w/2-4,y+h-14,8,14);}
+function house(x,y,w,h,color){if(artReady){const kind=buildingIndex++%2?'townhouses':'palazzo';paintSprite(d,atlas,kind,x-6,y,w+14,h+10);return;}d.fillStyle='#142e2b66';d.fillRect(x+7,y+8,w,h);d.fillStyle=color;d.fillRect(x,y,w,h);d.fillStyle='#ad9c73';d.fillRect(x,y+h-8,w,8);poly(d,[[x-3,y],[x+w/2,y-13],[x+w+3,y],[x+w/2,y+12]],'#89674d','#4b5547');d.fillStyle='#b78660';d.fillRect(x+2,y,w-4,3);d.fillStyle='#263c35';for(let i=7;i<w-4;i+=12){d.fillRect(x+i,y+15,5,9);if(h>40)d.fillRect(x+i,y+30,5,8);}d.fillStyle='#d1b680';d.fillRect(x+w/2-4,y+h-14,8,14);}
 function tree(x,y){d.fillStyle='#132e2866';d.fillRect(x+3,y+1,12,23);circle(d,x,y,12,'#314c3d');circle(d,x-4,y-4,8,'#45634a');circle(d,x+4,y-7,6,'#526c4e');}
 function makeDecor(){seed=187;buildingIndex=0;d.clearRect(0,0,W,H);d.fillStyle='#697962';d.fillRect(0,0,W,H);if(terrainReady){const paving=d.createPattern(terrain,'repeat');paving.setTransform(new DOMMatrix().scale(240/terrain.naturalWidth,240/terrain.naturalHeight));d.fillStyle=paving;d.fillRect(0,0,W,H);d.fillStyle='#243c3538';d.fillRect(0,0,W,H);}for(let y=0;y<H&&!terrainReady;y+=24)for(let x=0;x<W;x+=29){d.strokeStyle=rand()>.5?'#75816b16':'#253f3322';d.strokeRect(x+(y%48?14:0),y,28,23);}
 canal(d,105,'#354c3b');canal(d,97,'#6c8066');canal(d,91,'#beb18a');canal(d,80,'#d0c099');canal(d,73,'#173e40');canal(d,65,'#286364');canal(d,52,'#2b6c6a');canal(d,31,'#2e716c');
@@ -47,13 +52,11 @@ canal(d,105,'#354c3b');canal(d,97,'#6c8066');canal(d,91,'#beb18a');canal(d,80,'#
 for(let i=0;i<1150;i++){const x=rand()*W,y=rand()*H;if(nearPath(x,y,29)){d.fillStyle=rand()>.5?'#a6e0c612':'#062e3910';d.fillRect(x,y,8+rand()*12,1);}}
 // Masonry joints along the pale canal banks.
 for(const edge of canalEdges){const [a,b]=edge.points,len=Math.hypot(b[0]-a[0],b[1]-a[1]),dx=(b[0]-a[0])/len,dy=(b[1]-a[1])/len;for(let v=10;v<len-35;v+=19){d.strokeStyle='#697b6022';d.lineWidth=2;for(const side of [-1,1]){d.beginPath();d.moveTo(a[0]+dx*v-dy*side*37,a[1]+dy*v+dx*side*37);d.lineTo(a[0]+dx*v-dy*side*44,a[1]+dy*v+dx*side*44);d.stroke();}}}
-for(let i=0;i<170;i++){const x=rand()*W,y=rand()*H;if(!nearPath(x,y,76)&&!sites.some(p=>Math.hypot(x-p[0],y-p[1])<36)){if(rand()>.64)tree(x,y);else{d.fillStyle='#80907133';d.fillRect(x,y,3,2);}}}
-// Venetian blocks, terracotta roofs and waterfront palazzi.
-house(224,157,39,38,'#b3a17c');house(274,158,44,34,'#bba681');house(325,160,31,36,'#988e6e');house(373,155,51,40,'#b8aa82');house(443,164,32,30,'#a59670');
-house(231,307,47,34,'#a99878');house(294,309,35,31,'#c0ae87');house(349,311,50,30,'#aa9874');house(425,310,51,32,'#b7ab81');house(492,310,36,31,'#a99372');
-house(198,462,49,40,'#baab82');house(262,461,37,30,'#a79474');house(333,461,39,37,'#b8a784');house(391,461,40,31,'#a39773');house(452,460,42,33,'#c0ac83');house(511,463,35,28,'#a69673');
-house(25,463,41,51,'#bbaa81');house(26,550,39,42,'#b9a17b');house(87,581,45,36,'#b4a57d');house(156,577,35,40,'#bfa67e');house(199,589,44,35,'#a69c78');house(84,665,39,37,'#b9a880');house(150,660,55,36,'#b7a27e');house(224,673,35,38,'#9f936e');
-house(481,647,48,43,'#c1af82');house(547,647,39,41,'#b39d75');house(610,609,35,46,'#bcaa84');house(620,688,45,40,'#a79772');house(664,232,34,45,'#b09c72');house(665,321,36,32,'#9d9470');house(666,440,33,39,'#b1a17b');
+// Mixed-density neighbourhoods fill dry land while retaining canal and mooring clearance.
+for(const item of cityLayout){
+ if(cityReady)paintCitySprite(d,cityArt,item);
+ else house(item.x,item.y,item.w-14,item.h-10,'#b6a37c');
+}
 // Small piazza and a domed basilica in the lower-left quarter.
 if(artReady){paintSprite(d,atlas,'basilica',9,323,82,90);}else{d.fillStyle='#a5a181';d.fillRect(22,318,61,100);d.strokeStyle='#777e60';d.strokeRect(26,322,53,92);d.fillStyle='#ac9d75';d.fillRect(30,352,44,51);d.fillStyle='#d0ba8a';d.fillRect(34,363,36,40);poly(d,[[28,352],[52,336],[76,352]],'#b6a37b');circle(d,52,336,13,'#819482');d.fillStyle='#819482';d.fillRect(39,336,26,15);d.fillStyle='#d3c08f';d.fillRect(50,316,4,9);d.fillStyle='#33493d';for(let x=40;x<70;x+=11)d.fillRect(x,377,5,17);
 }
