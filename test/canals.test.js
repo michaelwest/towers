@@ -3,8 +3,14 @@ import assert from 'node:assert/strict';
 import {Game,position} from '../engine.js';
 import {findRoutes,damSites,damCost,canalEdges} from '../canals.js';
 function advance(game,time){for(let t=0;t<time;t+=1/60)game.update(1/60);}
+test('dams cost 125 gold and a second dam requires more income',()=>{
+ const game=new Game();assert.equal(damCost,125);
+ assert.ok(game.buildDam('west-cut'));assert.equal(game.gold,95);
+ assert.equal(game.buildDam('centre-cut'),false);assert.equal(game.gold,95);
+ assert.match(game.notice,/Not enough gold/);
+});
 test('open canals offer multiple routes and dams lengthen the shortest route',()=>{
- const game=new Game();assert.ok(game.routes.length>1);assert.equal(game.routes[0].length,1019);
+ const game=new Game();game.gold=damCost*3;assert.ok(game.routes.length>1);assert.equal(game.routes[0].length,1019);
  assert.ok(game.buildDam('west-cut'));assert.ok(game.routes[0].length>1019);
  assert.ok(game.buildDam('centre-cut'));assert.ok(game.buildDam('east-cut'));
  assert.equal(game.routes.length,1);assert.equal(game.routes[0].length,2333);

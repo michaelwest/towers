@@ -13,7 +13,7 @@ export const canalEdges=[
  edge('west-cut','fork','west',true),edge('east-cut','east','se',true),edge('centre-cut','centre','exitFork',true)
 ];
 export const damSites=canalEdges.filter(edge=>edge.dam).map(edge=>({...edge,x:(edge.points[0][0]+edge.points[1][0])/2,y:(edge.points[0][1]+edge.points[1][1])/2}));
-export const damCost=35;
+export const damCost=125;
 const cache=new Map();
 export function findRoutes(blocked=[],start='entry'){
  const closed=new Set(blocked),key=[...closed].sort().join(',')+'|'+start;

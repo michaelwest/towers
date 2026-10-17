@@ -7,9 +7,9 @@ for(const strategy of Object.keys(strategies)){
   assert.equal(result.status,'won');assert.equal(result.rows.length,10);
   for(const row of result.rows){
    assert.equal(row.leaks,0,'wave '+row.wave+' must clear');
-   assert.ok(row.dams>=2,'dam purchases must be included in the defence budget');
    assert.equal(row.income,waveBudget(row.wave).totalGold,'kill rewards and clear bonus must reconcile');
   }
+  assert.equal(result.rows.at(-1).dams,3,'all three shortcut dams must be included in the defence budget');
   const late=result.rows.slice(6);
   assert.ok(late.some(row=>row.furthest>.8),'late waves must pressure the back line');
   assert.ok(result.rows.at(-1).bank-result.rows.at(-1).income<80,'money should be invested before the final wave');

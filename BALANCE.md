@@ -37,33 +37,33 @@ The open network has eight routes; the shortest is 1,019 units. Dams can force a
 
 Enemy count = 9 + 3n + floor(0.4n²), where n = wave − 1. Spawn interval = max(0.5, 0.95 − 0.05n). HP multipliers are a deliberately tuned per-wave table in engine.js; heavier boats first appear on wave 4.
 
-Perfect clears earn 2376 gold, or 2,596 including the initial treasury. Only 2,188 is available before wave 10; its 408-gold reward cannot help defend that wave. A ten-tower mix costs roughly 2,750 gold to fully upgrade, before the additional 105 gold for three dams. The player must choose where to spend rather than max everything.
+Perfect clears earn 2376 gold, or 2,596 including the initial treasury. Only 2,188 is available before wave 10; its 408-gold reward cannot help defend that wave. Fully upgrading the reference mix of seven crossbows, two cannons, and one frost tower costs 2,477 gold, before the additional 375 gold for three dams. The player must choose where to spend rather than max everything.
 
 ## Branching routes and dam costs
 
-Dams cost 35 gold each and refund 22 on removal. Six canal crossings can be closed. The initial shortest route is 1,019 units; the original winding route is 2,333 units. Closing the three cross-canals extends the shortest route by 129%. The network starts with eight simple routes. Most boats use the shortest; every third chooses the second-shortest when it is within 50% of the shortest.
+Dams cost 125 gold each and refund 81 on removal. At 3.57 times their former price, dams require saving or deferring tower upgrades; the 220-gold opening treasury cannot buy two. Six canal crossings can be closed. The initial shortest route is 1,019 units; the original winding route is 2,333 units. Closing the three cross-canals extends the shortest route by 129%. The network starts with eight simple routes. Most boats use the shortest; every third chooses the second-shortest when it is within 50% of the shortest.
 
 Dam purchases validate the full network and each live boat. Complete blockades, trapped boats, and building through an occupied canal are rejected without charging gold. Live boats reroute from their current position. Target priority uses remaining distance to the goal, so a boat on a shortcut is not overlooked merely because it travelled fewer units.
 
 ## Measured campaigns
 
-Run `npm run balance` to reproduce these results. The three explicit purchase plans are in scripts/balance.mjs. They buy two dams and two crossbows for 200 of the starting 220 gold, add the third dam and another crossbow on wave 2, then keep expanding a mixed defence. Purchases happen only between waves, and upgrading begins after eight towers. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. The enemy HP, wave counts, tower stats, and gold economy remain unchanged from the previous balancing pass.
+Run `npm run balance` to reproduce these results. The two explicit purchase schedules are in scripts/balance.mjs. They begin with three crossbows for 195 of the starting 220 gold, invest in upgrades and a mixed defence, and buy dams later in the campaign. Purchases happen only between waves. Every purchase must succeed at its actual price; the simulator rejects unaffordable plans. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. Enemy HP, wave counts, tower stats, starting gold, and wave income are unchanged.
 
-“Furthest” is the maximum fraction of a boat's own current route traversed during the wave. Reaching 100% means a leak. The first wave uses a shorter route; the three cross-canal dams force the long route from wave 2 onward.
+“Furthest” is the maximum fraction of a boat's own current route traversed during the wave. Reaching 100% means a leak. The opening uses the open network; routes lengthen as dams become affordable.
 
-| Wave | Locks: furthest | Distributed: furthest | Hybrid: furthest | Escapes, all three |
-|---|---:|---:|---:|---:|
-| 1 | 93.9% | 93.9% | 77.4% | 0 |
-| 2 | 84.8% | 80.9% | 79.3% | 0 |
-| 3 | 87.3% | 87.3% | 87.3% | 0 |
-| 4 | 82.5% | 87.0% | 86.2% | 0 |
-| 5 | 74.1% | 74.1% | 74.1% | 0 |
-| 6 | 73.0% | 73.0% | 73.0% | 0 |
-| 7 | 72.2% | 72.2% | 72.2% | 0 |
-| 8 | 73.8% | 74.3% | 73.6% | 0 |
-| 9 | 93.5% | 93.8% | 93.8% | 0 |
-| 10 | 90.2% | 87.7% | 87.7% | 0 |
+| Wave | Cannon first: furthest | Frost first: furthest | Escapes, both |
+|---|---:|---:|---:|
+| 1 | 74.1% | 74.1% | 0 |
+| 2 | 71.8% | 71.8% | 0 |
+| 3 | 67.8% | 67.8% | 0 |
+| 4 | 92.5% | 92.5% | 0 |
+| 5 | 91.6% | 91.6% | 0 |
+| 6 | 91.6% | 91.6% | 0 |
+| 7 | 90.2% | 91.5% | 0 |
+| 8 | 74.5% | 74.5% | 0 |
+| 9 | 77.4% | 77.4% | 0 |
+| 10 | 93.1% | 93.1% | 0 |
 
-All three plans clear every boat in all ten waves while paying for all dams. Their final threats reach 90.2% / 87.7% / 87.7% of the route. Final pre-wave spare gold is 63 / 63 / 63 gold. Keeping only the initial defence and dams eventually loses the campaign.
+Both plans clear every boat in all ten waves while paying 375 gold for three dams. They buy two dams before wave 6 and the third before wave 7. One adds the second cannon before wave 7 and frost before wave 8; the other reverses those tower purchases. Both final threats reach 93.1% of the route, with 22 gold left before the final wave. Keeping only the initial defence eventually loses the campaign.
 
-Regression tests require all 30 reference waves to clear, reconcile actual income with theoretical budgets, account for dam purchases, and apply meaningful pressure to the back line. Routing tests enumerate every dam configuration and ensure no successful purchase disconnects the gate. Human playtesting should guide further tuning of placement tolerance and perceived difficulty.
+Regression tests require all 20 reference waves to clear, reconcile actual income with theoretical budgets, account for dam purchases, and apply meaningful pressure to the back line. Routing tests enumerate every dam configuration and ensure no successful purchase disconnects the gate. Human playtesting should guide further tuning of placement tolerance and perceived difficulty.

@@ -1,19 +1,40 @@
 import {Game,towerTypes,enemyTypes,waveProfile,pathLength} from '../engine.js';
 
+// Each row lists purchases before that wave; all use the live engine prices.
 export const strategies={
- 'locks':[['west-cut','dam'],['centre-cut','dam'],[6,'bolt'],[17,'bolt'],[11,'bolt'],['east-cut','dam'],[8,'frost'],[12,'splash'],[13,'frost'],[7,'splash'],[16,'bolt'],[18,'frost'],[2,'splash']],
- 'distributed':[['west-cut','dam'],['centre-cut','dam'],[6,'bolt'],[17,'bolt'],[16,'bolt'],['east-cut','dam'],[8,'frost'],[7,'splash'],[13,'frost'],[12,'splash'],[11,'bolt'],[18,'frost'],[2,'splash']],
- 'hybrid':[['west-cut','dam'],['centre-cut','dam'],[6,'bolt'],[16,'bolt'],[11,'bolt'],['east-cut','dam'],[8,'frost'],[7,'splash'],[13,'frost'],[12,'splash'],[17,'bolt'],[18,'frost'],[2,'splash']]
+ cannonFirst:[
+  [[8,'bolt'],[12,'bolt'],[17,'bolt']], // Wave 1
+  [[6,'bolt'],[11,'bolt']], // Wave 2
+  [[6,'upgrade'],[21,'bolt']], // Wave 3
+  [[17,'upgrade'],[18,'bolt']], // Wave 4
+  [[18,'upgrade'],[13,'splash']], // Wave 5
+  [['west-cut','dam'],['east-cut','dam']], // Wave 6
+  [['centre-cut','dam'],[7,'splash']], // Wave 7
+  [[16,'frost'],[13,'upgrade'],[7,'upgrade'],[8,'upgrade']], // Wave 8
+  [[13,'upgrade'],[7,'upgrade']], // Wave 9
+  [[16,'upgrade'],[16,'upgrade'],[8,'upgrade'],[12,'upgrade']] // Wave 10
+ ],
+ frostFirst:[
+  [[8,'bolt'],[12,'bolt'],[17,'bolt']], // Wave 1
+  [[6,'bolt'],[11,'bolt']], // Wave 2
+  [[6,'upgrade'],[21,'bolt']], // Wave 3
+  [[17,'upgrade'],[18,'bolt']], // Wave 4
+  [[18,'upgrade'],[13,'splash']], // Wave 5
+  [['west-cut','dam'],['east-cut','dam']], // Wave 6
+  [['centre-cut','dam'],[16,'frost']], // Wave 7
+  [[7,'splash'],[13,'upgrade'],[7,'upgrade'],[8,'upgrade']], // Wave 8
+  [[13,'upgrade'],[7,'upgrade']], // Wave 9
+  [[16,'upgrade'],[16,'upgrade'],[8,'upgrade'],[12,'upgrade']] // Wave 10
+ ]
 };
-export function simulate({strategy='locks',dt=1/60,stopAfter=10,invest=true}={}){
+export function simulate({strategy='cannonFirst',dt=1/60,stopAfter=10,invest=true}={}){
  const game=new Game(),rows=[];
  for(let wave=1;wave<=stopAfter;wave++){
   if(invest||wave===1){
-   for(const [site,type] of strategies[strategy]){
-    if(type==='dam'){if(!game.dams.includes(site))game.buildDam(site);}
-    else if(!game.towers.some(t=>t.site===site)&&game.gold>=towerTypes[type].cost)game.build(site,type);
+   for(const [site,type] of strategies[strategy][wave-1]||[]){
+    const bought=type==='dam'?game.buildDam(site):type==='upgrade'?game.upgrade(game.towers.find(t=>t.site===site)):game.build(site,type);
+    if(!bought)throw new Error('Unaffordable or invalid purchase before wave '+wave+': '+site+' / '+type);
    }
-   if(game.towers.length>=8)for(const tower of game.towers)if(game.gold>=game.upgradeCost(tower))game.upgrade(tower);
   }
   const bankBefore=game.gold,healthBefore=game.health;
   game.startWave();

@@ -42,7 +42,7 @@ Run `npm run balance` for tower DPS, enemy HP and counts, gold budgets, and full
 
 ## Branching canals and dams
 
-The map begins with eight routes through three cross-canals. Boats choose a short open route, with every third boat taking a nearby alternative when available. Select **Dam**, then tap a marked crossing to close it for 35 gold. The preview shows the shortest remaining route. Dam placement checks entrance connectivity and each live boat, rejects occupied canals, and reroutes boats from their current positions. Click a built dam to reopen it for a 22-gold refund. Closing all three shortcuts restores the original 2,333-unit winding route; leaving them open permits a 1,019-unit shortcut.
+The map begins with eight routes through three cross-canals. Boats choose a short open route, with every third boat taking a nearby alternative when available. Select **Dam**, then tap a marked crossing to close it for 125 gold. The preview shows the shortest remaining route. Dam placement checks entrance connectivity and each live boat, rejects occupied canals, and reroutes boats from their current positions. Click a built dam to reopen it for an 81-gold refund. Closing all three shortcuts restores the original 2,333-unit winding route; leaving them open permits a 1,019-unit shortcut.
 
 The balance simulations now include dam purchases, with no change to starting gold, wave health, income, or tower stats.
 
