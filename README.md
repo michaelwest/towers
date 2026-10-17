@@ -30,7 +30,7 @@ The included GitHub Actions workflow tests and publishes only the static game fi
 
 Crossbow and cannon towers use separate stationary bases and eight generated weapon directions. Aim follows targets between shots, barrel recoil moves only the weapon, and shot effects begin at the visible muzzle. The Tidekeeper stays fixed and casts from its crystal.
 
-The battlefield and scenery cache render at display resolution (up to 3× pixel density). Paving repeats at a 240-unit tile size for finer cobbles. Bolts and frost shards fly toward their targets; cannonballs follow an arc to a predicted landing point. Damage, splash, and slowing resolve on impact.
+The battlefield and scenery cache render at display resolution (up to 3× pixel density). Smooth limestone paving repeats at a 160-unit tile size with faint seams and a lighter palette. Bolts and frost shards fly toward their targets; cannonballs follow an arc to a predicted landing point. Damage, splash, and slowing resolve on impact.
 
 The southern city gate is a generated Venetian Arsenal-inspired landmark, with twin brick towers, Istrian stonework, a winged lion, and a transparent canal passage. It renders in front of passing boats; the two nearby moorings are spaced outside its footprint.
 
@@ -49,3 +49,5 @@ The balance simulations now include dam purchases, with no change to starting go
 ## City scenery
 
 The generated district atlas adds nine scenery types: dense homes, Gothic palazzi, warehouses, market stalls, well piazzas, courtyard gardens, single townhouses, artisan workshops, and civic halls. A deterministic layout packs 69 parcels across the dry land, with open markets and gardens contrasting with denser residential blocks. Canal water, dam crossings, tower moorings, the basilica, and the Arsenal gate have reserved clearance. The scenery is composited once into the high-resolution background cache and rebuilt only when assets load or the viewport changes.
+
+Dams use a generated oak-and-bronze sluice sprite with pale stone piers and a winding wheel, shared by the battlefield and purchase card. The lighter limestone background replaces the rough mossy cobbles to reduce visual noise behind the city.

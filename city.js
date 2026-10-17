@@ -50,4 +50,13 @@ export function createCityLayout(){
  return layout.sort((a,b)=>(a.y+a.h)-(b.y+b.h));
 }
 export const cityLayout=createCityLayout();
-export function paintCitySprite(context,image,item){context.drawImage(image,...citySprites[item.kind],item.x,item.y,item.w,item.h);}
+export function paintCitySprite(context,image,item){
+ context.save();
+ if(item.kind==='garden'){
+  // Keep the tall cypress, but exclude the neighbouring warehouse's lower edge.
+  context.beginPath();context.rect(item.x,item.y+item.h*40/354,item.w,item.h*(1-40/354));
+  context.rect(item.x+item.w*150/477,item.y,item.w*95/477,item.h);context.clip();
+ }
+ context.drawImage(image,...citySprites[item.kind],item.x,item.y,item.w,item.h);
+ context.restore();
+}

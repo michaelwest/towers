@@ -15,3 +15,5 @@ main{padding-top:16px}.utility-controls{display:flex;gap:16px}.utility-controls 
 .dam-art{width:49px;text-align:center;font-size:36px;color:var(--gold)}.map-tip{max-width:90%;white-space:normal;text-align:center;line-height:1.5}.dam-card{margin-top:15px}
 
 .wave-control{padding-top:0;border-top:0}
+
+.dam-art{display:grid;place-items:center;width:60px;height:52px;flex-shrink:0}.dam-art canvas{width:60px;height:28px}

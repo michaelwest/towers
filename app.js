@@ -27,7 +27,12 @@ function nearPath(x,y,margin){for(const edge of canalEdges){const [a,b]=edge.poi
 const terrain=new Image();
 let terrainReady=false;
 terrain.onload=()=>{terrainReady=true;makeDecor();};
-terrain.src=new URL('./assets/venice-stone.png',import.meta.url).href;
+terrain.src=new URL('./assets/venice-paving.png',import.meta.url).href;
+const damArt=new Image();
+let damReady=false;
+function paintDam(context,x,y,w=94,h=25){context.drawImage(damArt,50,110,1930,510,x,y,w,h);}
+damArt.onload=()=>{damReady=true;const icon=document.createElement('canvas');icon.width=240;icon.height=112;icon.setAttribute('aria-hidden','true');paintDam(icon.getContext('2d'),0,8,240,64);document.querySelector('.dam-art').replaceChildren(icon);};
+damArt.src=new URL('./assets/canal-dam.png',import.meta.url).href;
 const gate=new Image();
 let gateReady=false;
 gate.onload=()=>{gateReady=true;makeDecor();};
@@ -46,7 +51,7 @@ atlas.onload=()=>{artReady=true;makeDecor();updateTowerIcons();};
 atlas.onerror=()=>{game.notice='Illustrations unavailable. Using the built-in map artwork.';};
 function house(x,y,w,h,color){if(artReady){const kind=buildingIndex++%2?'townhouses':'palazzo';paintSprite(d,atlas,kind,x-6,y,w+14,h+10);return;}d.fillStyle='#142e2b66';d.fillRect(x+7,y+8,w,h);d.fillStyle=color;d.fillRect(x,y,w,h);d.fillStyle='#ad9c73';d.fillRect(x,y+h-8,w,8);poly(d,[[x-3,y],[x+w/2,y-13],[x+w+3,y],[x+w/2,y+12]],'#89674d','#4b5547');d.fillStyle='#b78660';d.fillRect(x+2,y,w-4,3);d.fillStyle='#263c35';for(let i=7;i<w-4;i+=12){d.fillRect(x+i,y+15,5,9);if(h>40)d.fillRect(x+i,y+30,5,8);}d.fillStyle='#d1b680';d.fillRect(x+w/2-4,y+h-14,8,14);}
 function tree(x,y){d.fillStyle='#132e2866';d.fillRect(x+3,y+1,12,23);circle(d,x,y,12,'#314c3d');circle(d,x-4,y-4,8,'#45634a');circle(d,x+4,y-7,6,'#526c4e');}
-function makeDecor(){seed=187;buildingIndex=0;d.clearRect(0,0,W,H);d.fillStyle='#697962';d.fillRect(0,0,W,H);if(terrainReady){const paving=d.createPattern(terrain,'repeat');paving.setTransform(new DOMMatrix().scale(240/terrain.naturalWidth,240/terrain.naturalHeight));d.fillStyle=paving;d.fillRect(0,0,W,H);d.fillStyle='#243c3538';d.fillRect(0,0,W,H);}for(let y=0;y<H&&!terrainReady;y+=24)for(let x=0;x<W;x+=29){d.strokeStyle=rand()>.5?'#75816b16':'#253f3322';d.strokeRect(x+(y%48?14:0),y,28,23);}
+function makeDecor(){seed=187;buildingIndex=0;d.clearRect(0,0,W,H);d.fillStyle='#a4ac9c';d.fillRect(0,0,W,H);if(terrainReady){const paving=d.createPattern(terrain,'repeat');paving.setTransform(new DOMMatrix().scale(160/terrain.naturalWidth,160/terrain.naturalHeight));d.fillStyle=paving;d.fillRect(0,0,W,H);d.fillStyle='#9ca58f33';d.fillRect(0,0,W,H);}for(let y=0;y<H&&!terrainReady;y+=24)for(let x=0;x<W;x+=29){d.strokeStyle=rand()>.5?'#75816b16':'#253f3322';d.strokeRect(x+(y%48?14:0),y,28,23);}
 canal(d,105,'#354c3b');canal(d,97,'#6c8066');canal(d,91,'#beb18a');canal(d,80,'#d0c099');canal(d,73,'#173e40');canal(d,65,'#286364');canal(d,52,'#2b6c6a');canal(d,31,'#2e716c');
 // Sunlit limestone and a deep water gradient make the banks readable at phone size.
 for(let i=0;i<1150;i++){const x=rand()*W,y=rand()*H;if(nearPath(x,y,29)){d.fillStyle=rand()>.5?'#a6e0c612':'#062e3910';d.fillRect(x,y,8+rand()*12,1);}}
@@ -104,10 +109,15 @@ for(const site of damSites){
  const active=damHover===site.id||damFocus===site.id;
  ctx.save();ctx.translate(site.x,site.y);
  if(built){
+  if(damReady){
+   ctx.save();ctx.strokeStyle='#b6dfce55';ctx.lineWidth=1;for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(-13+i*13,14+i%2,8,1.8,0,0,Math.PI);ctx.stroke();}ctx.restore();
+   paintDam(ctx,-47,-14);
+  }else{
   ctx.fillStyle='#132c2b77';ctx.fillRect(-43,-5,86,20);
   const wood=ctx.createLinearGradient(0,-12,0,12);wood.addColorStop(0,'#c4a474');wood.addColorStop(.4,'#886544');wood.addColorStop(1,'#583f2c');ctx.fillStyle=wood;ctx.fillRect(-43,-10,86,20);
   ctx.strokeStyle='#493a2b';ctx.lineWidth=1;for(let y=-5;y<=5;y+=5){ctx.beginPath();ctx.moveTo(-40,y);ctx.lineTo(40,y);ctx.stroke();}
   for(const x of [-39,-19,19,39]){ctx.fillStyle='#bea67d';ctx.fillRect(x-3,-15,6,30);circle(ctx,x,-10,1.2,'#4b5146');circle(ctx,x,10,1.2,'#4b5146');}
+  }
   if(active){ctx.strokeStyle='#f0d294';ctx.lineWidth=2;ctx.strokeRect(-46,-17,92,34);}
  }else{
   const allowed=damPreview(site.id).ok;ctx.fillStyle=allowed?'#263c32dd':'#492f2cdd';ctx.strokeStyle=allowed?'#d5bc82':'#da907a';ctx.setLineDash([4,4]);ctx.lineWidth=active?2:1;ctx.strokeRect(-42,-12,84,24);ctx.fillRect(-20,-13,40,26);ctx.setLineDash([]);ctx.fillStyle=allowed?'#efdbb0':'#e5aa96';ctx.font='18px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(allowed?'+':'×',0,0);
