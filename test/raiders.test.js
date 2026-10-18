@@ -5,7 +5,7 @@ import {damSites} from '../canals.js';
 function target(kind,distance=200){const spec=enemyTypes[kind];return {...spec,kind,distance,routePoints:pathPoints,routeLength:pathLength,speed:0,hp:100,maxHp:100,slow:0,hit:0,id:1,...position(distance)};}
 function advance(game,seconds){for(let t=0;t<seconds;t+=.01)game.update(.01);}
 test('Ironclad armour reduces bolts by 65 percent but takes full cannon damage',()=>{
- for(const [type,damage] of [['bolt',19*.35],['splash',29]]){
+ for(const [type,damage] of [['bolt',20*.35],['splash',30]]){
   const g=new Game();g.build(0,type);const ironclad=target(3);g.enemies=[ironclad];g.update(.01);
   assert.equal(ironclad.hp,100,'damage must wait for impact');advance(g,.4);
   assert.ok(Math.abs(ironclad.hp-(100-damage))<.0001);
@@ -21,7 +21,7 @@ test('cannons neither select airships nor damage them with a nearby ground explo
  const g=new Game();g.build(0,'splash');const air=target(5),boat=target(0,205);g.enemies=[air];g.update(.01);
  assert.equal(g.projectiles.length,0);
  g.enemies.push(boat);g.update(.01);assert.equal(g.projectiles[0].target,boat);
- advance(g,.4);assert.equal(air.hp,100);assert.equal(boat.hp,71);
+ advance(g,.4);assert.equal(air.hp,100);assert.equal(boat.hp,70);
 });
 test('crossbows and frost can intercept and slow an airship',()=>{
  for(const type of ['bolt','frost']){
@@ -52,7 +52,7 @@ test('hits flash briefly, kills emit destruction effects, and dead enemies canno
  assert.ok(g.effects.some(e=>e.kind==='sink'&&e.special));
  const air=target(5);air.hp=0;g.enemies=[air];g.update(.01);assert.ok(g.effects.some(e=>e.kind==='air-burst'));
 });
-test('new threats are introduced gradually and airships remain rare',()=>{
+test('new threats are introduced gradually and airships remain rare through the first ten waves',()=>{
  const waves=Array.from({length:10},(_,i)=>waveProfile(i+1));
  assert.ok(!waves[0].spawnOrder.some(k=>k>=3));assert.ok(!waves[1].spawnOrder.some(k=>k>=3));
  assert.ok(waves[2].spawnOrder.includes(4));assert.ok(waves[4].spawnOrder.includes(3));

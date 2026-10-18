@@ -4,9 +4,9 @@ export const W=720, H=730;
 export const pathPoints=[[122,-30],[122,119],[578,119],[578,270],[142,270],[142,424],[578,424],[578,578],[357,578],[357,754]];
 export const sites=[[70,75],[184,65],[295,65],[415,65],[537,65],[632,158],[516,213],[397,213],[245,200],[82,235],[82,350],[205,363],[345,363],[445,363],[633,385],[633,514],[515,516],[367,516],[297,523],[270,652],[454,680],[210,488]];
 export const towerTypes={
- bolt:{name:'Ballista',cost:65,range:155,cooldown:.65,damage:19,color:'#e5bd76',description:'Fast, precise fire against boats and airships. Ironclad armour resists its bolts.'},
- splash:{name:'Cannon',cost:110,range:145,cooldown:1.65,damage:29,color:'#ed9474',description:'Explosive shells bypass Ironclad armour and damage clustered boats. Ground targets only.'},
- frost:{name:'Freeze',cost:85,range:138,cooldown:.95,damage:6,color:'#76d6cd',description:'Slows boats and airships by 48% for 2 seconds. Especially useful against fast smugglers.'}
+ bolt:{name:'Ballista',cost:65,range:155,cooldown:.65,damage:20,color:'#e5bd76',description:'Fast, precise fire against boats and airships. Ironclad armour resists its bolts.'},
+ splash:{name:'Cannon',cost:110,range:145,cooldown:1.65,damage:30,color:'#ed9474',description:'Explosive shells bypass Ironclad armour and damage clustered boats. Ground targets only.'},
+ frost:{name:'Freeze',cost:85,range:138,cooldown:.95,damage:6,slow:.5,slowDuration:2,color:'#76d6cd',description:'Slows boats and airships by 50% for 2 seconds. Especially useful against fast smugglers.'}
 };
 export function towerStats(type,level=1){
  const spec=towerTypes[type],damage=spec.damage*(1+(level-1)*.55),cooldown=spec.cooldown/(1+(level-1)*.12);
@@ -26,6 +26,7 @@ export function canTarget(type,enemy){return type!=='splash'||!enemy.flying;}
 export function hitDamage(enemy,damage,type){return damage*(type==='bolt'?(enemy.boltMultiplier??1):1);}
 
 export const balance={startingGold:220,clearBonus:80,hpMultipliers:[1.65,2.1,2.45,2.65,2.9,3.2,3.5,3.75,4.6,4.9]};
+function waveHpMultiplier(wave){return balance.hpMultipliers[Math.min(wave-1,balance.hpMultipliers.length-1)];}
 export function waveProfile(wave){
  const progression=wave-1,count=9+progression*3+Math.floor(progression*progression*.4);
  const spawnOrder=Array.from({length:count},(_,i)=>{
@@ -34,9 +35,9 @@ export function waveProfile(wave){
   if(wave>=3&&original===0&&i%7===5)return 4;
   return original;
  });
- // Three airships in the entire campaign: teach the threat, then revisit it sparsely.
+ // A rare airship every second wave after its introduction.
  if(wave>=6&&wave%2===0)spawnOrder[Math.floor(count*.55)]=5;
- return {count,spawnInterval:Math.max(.5,.95-progression*.05),hpMultiplier:balance.hpMultipliers[progression],clearBonus:balance.clearBonus,spawnOrder};
+ return {count,spawnInterval:Math.max(.5,.95-progression*.05),hpMultiplier:waveHpMultiplier(wave),clearBonus:balance.clearBonus,spawnOrder};
 }
 const segments=pathPoints.slice(1).map((p,i)=>Math.hypot(p[0]-pathPoints[i][0],p[1]-pathPoints[i][1]));
 export const pathLength=segments.reduce((a,b)=>a+b,0);
@@ -52,12 +53,12 @@ export function position(distance,points=pathPoints){
 }
 export class Game {
  constructor(){this.gold=balance.startingGold;this.health=20;this.wave=0;this.kills=0;this.towers=[];this.dams=[];this.routes=findRoutes();this.enemies=[];this.projectiles=[];this.effects=[];this.queue=[];this.active=false;this.status='ready';this.time=0;this.lastId=0;this.notice='Build your first line of defence.';}
- build(site,type){const spec=towerTypes[type];if(!spec||!sites[site]||this.status==='lost'||this.status==='won')return false;if(this.towers.some(t=>t.site===site)){this.notice='That mooring already has a tower.';return false;}if(this.gold<spec.cost){this.notice='Not enough gold. Defeat raiders to earn more.';return false;}this.gold-=spec.cost;this.towers.push({site,type,level:1,cooldown:0,aim:-Math.PI/2});this.notice=spec.name+' built. Ready for the tide.';return true;}
- upgrade(tower){const cost=this.upgradeCost(tower);if(tower.level>=3||this.gold<cost||!this.towers.includes(tower)||['won','lost'].includes(this.status))return false;this.gold-=cost;tower.level++;this.notice=towerTypes[tower.type].name+' upgraded to level '+tower.level+'.';return true;}
+ build(site,type){const spec=towerTypes[type];if(!spec||!sites[site]||this.status==='lost')return false;if(this.towers.some(t=>t.site===site)){this.notice='That mooring already has a tower.';return false;}if(this.gold<spec.cost){this.notice='Not enough gold. Defeat raiders to earn more.';return false;}this.gold-=spec.cost;this.towers.push({site,type,level:1,cooldown:0,aim:-Math.PI/2});this.notice=spec.name+' built. Ready for the tide.';return true;}
+ upgrade(tower){const cost=this.upgradeCost(tower);if(tower.level>=3||this.gold<cost||!this.towers.includes(tower)||this.status==='lost')return false;this.gold-=cost;tower.level++;this.notice=towerTypes[tower.type].name+' upgraded to level '+tower.level+'.';return true;}
  upgradeCost(tower){return Math.round(towerTypes[tower.type].cost*.75*tower.level);}
- sell(tower){if(!this.towers.includes(tower)||['won','lost'].includes(this.status))return;this.gold+=Math.floor(towerTypes[tower.type].cost*(1+.75*(tower.level-1)*tower.level/2)*.65);this.towers=this.towers.filter(t=>t!==tower);this.notice='Tower sold. Its mooring is available.';}
+ sell(tower){if(!this.towers.includes(tower)||this.status==='lost')return;this.gold+=Math.floor(towerTypes[tower.type].cost*(1+.75*(tower.level-1)*tower.level/2)*.65);this.towers=this.towers.filter(t=>t!==tower);this.notice='Tower sold. Its mooring is available.';}
  damCheck(edgeId){
-  if(['lost','won'].includes(this.status))return {ok:false,reason:'Start a new game to build.'};
+  if(this.status==='lost')return {ok:false,reason:'Start a new game to build.'};
   if(!damSites.some(site=>site.id===edgeId))return {ok:false,reason:'Choose a marked dam site.'};
   if(this.dams.includes(edgeId))return {ok:false,reason:'This canal already has a dam.'};
   const closed=[...this.dams,edgeId];
@@ -77,7 +78,7 @@ export class Game {
   this.notice='Dam built. Boats will take the open canals.';return true;
  }
  removeDam(edgeId){
-  if(!this.dams.includes(edgeId)||['lost','won'].includes(this.status))return false;
+  if(!this.dams.includes(edgeId)||this.status==='lost')return false;
   this.dams=this.dams.filter(id=>id!==edgeId);this.gold+=Math.floor(damCost*.65);this.rerouteBoats();
   this.notice='Dam removed. Canal reopened.';return true;
  }
@@ -90,7 +91,7 @@ export class Game {
   }
  }
  startWave(){
-  if(this.active||['lost','won'].includes(this.status))return false;
+  if(this.active||this.status==='lost')return false;
   this.wave++;this.status='playing';this.active=true;
   const profile=waveProfile(this.wave);
   this.queue=profile.spawnOrder.map((kind,i)=>({at:this.time+i*profile.spawnInterval,kind}));
@@ -98,11 +99,11 @@ export class Game {
  }
 
  update(dt){
-  if(['lost','won'].includes(this.status))return;
+  if(this.status==='lost')return;
   this.time+=dt;
   this.effects=this.effects.filter(e=>(e.life-=dt)>0);
   while(this.queue.length&&this.queue[0].at<=this.time){
-   const q=this.queue.shift(),k=enemyTypes[q.kind],hp=Math.round(k.hp*waveProfile(this.wave).hpMultiplier);
+   const q=this.queue.shift(),k=enemyTypes[q.kind],hp=Math.round(k.hp*waveHpMultiplier(this.wave));
    const id=++this.lastId,route=k.flying?{points:airRoute,length:airRouteLength}:chooseRoute(this.routes,id);
    this.enemies.push({...k,hp,maxHp:hp,kind:q.kind,distance:0,slow:0,hit:0,id,routePoints:route.points,routeLength:route.length,...position(0,route.points)});
   }
@@ -110,7 +111,7 @@ export class Game {
    if(e.hp<=0||e.escaped)continue;
    e.hit=Math.max(0,(e.hit||0)-dt);
    e.slow=Math.max(0,e.slow-dt);
-   e.distance+=e.speed*(e.slow>0?.52:1)*dt;
+   e.distance+=e.speed*(e.slow>0?1-towerTypes.frost.slow:1)*dt;
    Object.assign(e,position(e.distance,e.routePoints));
    if(e.distance>=(e.routeLength||pathLength)){
     e.escaped=true;const damage=e.gateDamage||1;this.health=Math.max(0,this.health-damage);
@@ -139,7 +140,7 @@ export class Game {
      shot.x=shot.tx;shot.y=shot.ty;shot.done=true;
      if(target.hp>0&&!target.escaped){
       this.hit(target,shot.damage,shot.type);
-      if(shot.type==='frost')target.slow=2;
+      if(shot.type==='frost')target.slow=towerTypes.frost.slowDuration;
       this.impact(shot);
      }
     }else{
@@ -169,7 +170,7 @@ export class Game {
    const velocity={bolt:480,splash:285,frost:300}[t.type];
    const duration=Math.max(.18,Math.hypot(target.x-origin.x,target.y-origin.y)/velocity);
    // Cannonballs land at a predicted point and can miss fast boats near a turn.
-   const destination=t.type==='splash'?position(target.distance+target.speed*(target.slow>0?.52:1)*duration,target.routePoints):target;
+   const destination=t.type==='splash'?position(target.distance+target.speed*(target.slow>0?1-towerTypes.frost.slow:1)*duration,target.routePoints):target;
    this.projectiles.push({
     ...origin,sx:origin.x,sy:origin.y,tx:destination.x,ty:destination.y,
     target,type:t.type,flying:!!target.flying,site:t.site,age:0,duration,speed:velocity,
@@ -185,8 +186,7 @@ export class Game {
   if(this.health<=0){this.status='lost';this.active=false;this.projectiles=[];this.notice='The lagoon has fallen.';return;}
   if(this.active&&!this.queue.length&&!this.enemies.length&&!this.projectiles.length){
    this.active=false;this.gold+=balance.clearBonus;
-   if(this.wave===10){this.status='won';this.notice='Venice stands. The lagoon is yours!';}
-   else{this.status='ready';this.notice='Wave cleared! Reinforce your defences.';}
+   this.status='ready';this.notice='Wave '+this.wave+' cleared! Reinforce for the next wave.';
   }
  }
  hit(enemy,damage,type){

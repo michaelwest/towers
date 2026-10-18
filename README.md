@@ -1,6 +1,6 @@
 # Lagoon Guard
 
-A mobile-friendly, Venetian canal tower defence game. Defend the city through ten waves with precision, splash, and slowing towers. Built with Canvas and vanilla JavaScript; no dependencies, account, or backend service required.
+A mobile-friendly, Venetian canal tower defence game. Defend the city through endless waves with precision, splash, and slowing towers. Built with Canvas and vanilla JavaScript; no dependencies, account, or backend service required.
 
 ## Run
 
@@ -16,13 +16,13 @@ The server listens on all interfaces at port 3000. Set `PORT` to change it. Open
 npm test
 ```
 
-Tests cover combat, economy, tower upgrades, slowing and splash effects, wave completion, and loss/win conditions.
+Tests cover combat, economy, tower upgrades, slowing and splash effects, wave completion, and defeat and survival past wave 10.
 
 ## Play
 
-Select a tower, then tap a circular mooring on the map. Launch a wave when ready. Tap built towers to upgrade or sell. Each kill earns gold, and each cleared wave earns a bonus. Water raiders cost one integrity point on reaching the gate; an airship costs three. Tap a raider to inspect its traits and counters. Survive all ten waves to win. Pause, 2× speed, and reset are included.
+Select a tower, then tap a circular mooring on the map. Launch a wave when ready. Tap built towers to upgrade or sell. Each kill earns gold, and each cleared wave earns a bonus. Water raiders cost one integrity point on reaching the gate; an airship costs three. Tap a raider to inspect its traits and counters. Waves continue until the gate falls. Pause, 2× speed, and reset are included.
 
-Google Fonts enhances typography when reachable; system serif and sans-serif fallbacks work offline. Boats, towers, and waterfront buildings use a locally served, image-generated Venetian sprite atlas. Terrain, water, wakes, and combat effects are rendered with Canvas. Procedural fallback art keeps the game playable if the atlas fails to load.
+Google Fonts enhances typography when reachable; system serif and sans-serif fallbacks work offline. Boats, towers, and waterfront buildings use a locally served, image-generated Venetian sprite atlas. Terrain, water, wakes, and combat effects are rendered with Canvas. Scenery waits for its artwork, leaving clean land while images load; functional tower and raider fallbacks keep play possible if their images fail.
 
 ## Publish on GitHub Pages
 
@@ -34,7 +34,7 @@ The battlefield and scenery cache render at display resolution (up to 3× pixel 
 
 The southern city gate is a generated Venetian Arsenal-inspired landmark, with twin brick towers, Istrian stonework, a winged lion, and a transparent canal passage. It renders in front of passing boats; the two nearby moorings are spaced outside its footprint.
 
-Waves increase from 9 boats in the first wave to 68 in the tenth, with accelerating enemy-count growth and spawn intervals tightening from 0.95 to 0.5 seconds. Enemy health and heavier boat types also increase across the campaign.
+Waves increase from 9 boats in the first wave to 68 in the tenth, with accelerating enemy-count growth and spawn intervals tightening from 0.95 to 0.5 seconds. Wave 11 has 79 boats, wave 12 has 90, and wave 20 has 210. From wave 10 onward, the HP multiplier stays at 4.9 while boat counts keep rising; rare airships continue on even-numbered waves.
 
 ## Game balance
 
@@ -44,7 +44,7 @@ Run `npm run balance` for tower DPS, enemy HP and counts, gold budgets, and full
 
 The map begins with eight routes through three staggered shortcuts, each bypassing a different bend. Every dam adds its own detour, without needing a matching dam on another vertical canal. Boats choose a short open route, with every third boat taking a nearby alternative when available. Select **Dam**, then tap a marked crossing to close it for 125 gold. The preview shows the shortest remaining route. Dam placement checks entrance connectivity and each live boat, rejects occupied canals, and reroutes boats from their current positions. Click a built dam to reopen it for an 81-gold refund. Closing all three shortcuts restores the original 2,333-unit winding route; leaving them open permits a 1,225-unit route.
 
-The balance simulations now include dam purchases, with no change to starting gold, wave health, income, or tower stats.
+Balance simulations account for dam purchases and use the actual combat stats and wave income.
 
 ## City scenery
 
@@ -54,7 +54,7 @@ Dams use a generated oak-and-bronze sluice sprite with pale stone piers and a wi
 
 ## Raider types and combat feedback
 
-The first two waves introduce skiffs and raiders; galleons arrive on wave 4. Fast, fragile **Smugglers** arrive on wave 3; use frost to hold them in range and crossbows to track them. **Ironclads** arrive on wave 5: their riveted hulls resist 65% of bolt damage, while cannon blasts bypass the armour. **Airships** appear once each on waves 6, 8 and 10. They fly directly to the Arsenal, ignore canals and dams, take three integrity on arrival, and can be targeted by crossbows and frost. Ground-only cannons cannot target or splash them.
+The first two waves introduce skiffs and raiders; galleons arrive on wave 4. Fast, fragile **Smugglers** arrive on wave 3; use frost to hold them in range and crossbows to track them. **Ironclads** arrive on wave 5: their riveted hulls resist 65% of bolt damage, while cannon blasts bypass the armour. **Airships** first appear on wave 6, then once every even-numbered wave. They fly directly to the Arsenal, ignore canals and dams, take three integrity on arrival, and can be targeted by crossbows and frost. Ground-only cannons cannot target or splash them.
 
 All five watercraft use four separately generated views (east, south, west, north) with a fixed elevated camera. Rendering switches direction at canal turns, keeping masts and sails upright; hull pivots are anchored independently of their source crop. The airship has a dedicated frontal view aligned with its direct approach and renders above buildings, towers, dams and the gate, with a detached ground shadow.
 
@@ -65,3 +65,5 @@ Combat feedback includes brief white hit flashes, silver sparks on armour, canno
 Tap any part of a built tower, including its roof or weapon, to manage it during a wave. Towers take selection priority over overlapping raiders. The full-width upgrade button has a 52-pixel touch target and shows the next level and gold cost. A comparison table shows current and next damage per hit, shots per second, range and DPS per target; a shortfall message explains when more gold is needed. Frost slow strength/duration and cannon blast radius stay unchanged. Displayed values and actual combat use the same stat calculation.
 
 Raider HP bars and status icons render in a final foreground pass above docks, towers, the Arsenal gate and combat effects.
+
+Base Ballista damage is 20, Cannon damage is 30, and Freeze slows movement by 50% for two seconds. The upgrade preview uses the same values as combat. The balance reference plans cover the first ten waves; clearing wave 10 returns to preparation for wave 11 rather than ending the game.

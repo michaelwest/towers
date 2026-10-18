@@ -8,14 +8,14 @@ test('bolts leave the muzzle, move through space, and damage only on arrival',()
  const game=fixture('bolt'),target=game.enemies[0],shot=game.projectiles[0];
  assert.equal(target.hp,100);assert.equal(shot.x,shot.sx);assert.equal(shot.y,shot.sy);
  game.update(.04);assert.notEqual(shot.x,shot.sx);assert.equal(target.hp,100);
- advance(game,.4);assert.equal(target.hp,81);assert.equal(game.projectiles.length,0);
+ advance(game,.4);assert.equal(target.hp,80);assert.equal(game.projectiles.length,0);
  assert.ok(game.effects.some(e=>e.kind==='impact'));
 });
 test('cannonballs land before applying area damage to nearby enemies',()=>{
  const game=new Game();game.build(0,'splash');game.enemies=[enemy(),enemy(205),enemy(280)];game.update(.01);
  assert.ok(game.enemies.every(e=>e.hp===100));assert.equal(game.projectiles.length,1);
  const flight=game.projectiles[0].duration;advance(game,flight+.02);
- assert.deepEqual(game.enemies.map(e=>e.hp),[71,71,100]);
+ assert.deepEqual(game.enemies.map(e=>e.hp),[70,70,100]);
  assert.ok(game.effects.some(e=>e.kind==='impact'&&e.type==='splash'));
 });
 test('frost slows a boat only when the projectile arrives',()=>{

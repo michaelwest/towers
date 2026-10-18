@@ -59,6 +59,6 @@ export function waveBudget(wave){
 }
 if(process.argv[1]===new URL(import.meta.url).pathname){
  console.table(Object.entries(towerTypes).map(([type,t])=>({type,cost:t.cost,damage:t.damage,seconds:t.cooldown,dps:+(t.damage/t.cooldown).toFixed(2),dpsPer100Gold:+(t.damage/t.cooldown/t.cost*100).toFixed(2)})));
- console.table(Array.from({length:10},(_,i)=>waveBudget(i+1)).map(row=>({...row,counts:row.counts.join('/'),hp:row.hp.join('/')})));
+ console.table(Array.from({length:20},(_,i)=>waveBudget(i+1)).map(row=>({...row,counts:row.counts.join('/'),hp:row.hp.join('/')})));
  for(const strategy of Object.keys(strategies)){const result=simulate({strategy});console.log(strategy,result.status);console.table(result.rows);}
 }

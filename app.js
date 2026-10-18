@@ -48,33 +48,23 @@ let cityReady=false;
 cityArt.onload=()=>{cityReady=true;makeDecor();};
 cityArt.src=new URL('./assets/city-districts.png',import.meta.url).href;
 const atlas=new Image();
-let artReady=false,buildingIndex=0;
+let artReady=false;
 atlas.src=new URL('./assets/venice-atlas.png',import.meta.url).href;
 const directionalImages={};
 function updateTowerIcons(){if(!artReady)return;document.querySelectorAll('.tower-art').forEach(el=>{const icon=document.createElement('canvas');icon.width=240;icon.height=288;icon.setAttribute('aria-hidden','true');const c=icon.getContext('2d'),type=el.parentElement.dataset.type;c.scale(2,2);c.imageSmoothingQuality='high';if(directionalImages[type]){c.translate(60,117);c.scale(1.5,1.5);drawDirectionalTower(c,directionalImages[type],type,-Math.PI/4);}else{paintSprite(c,atlas,type,10,0,100,142);}el.replaceChildren(icon);});}
 for(const [type,art] of Object.entries(directionalArt)){const image=new Image();image.onload=()=>{directionalImages[type]=image;updateTowerIcons();};image.src=new URL('./assets/'+art.file,import.meta.url).href;}
 atlas.onload=()=>{artReady=true;makeDecor();updateTowerIcons();};
-atlas.onerror=()=>{game.notice='Illustrations unavailable. Using the built-in map artwork.';};
-function house(x,y,w,h,color){if(artReady){const kind=buildingIndex++%2?'townhouses':'palazzo';paintSprite(d,atlas,kind,x-6,y,w+14,h+10);return;}d.fillStyle='#142e2b66';d.fillRect(x+7,y+8,w,h);d.fillStyle=color;d.fillRect(x,y,w,h);d.fillStyle='#ad9c73';d.fillRect(x,y+h-8,w,8);poly(d,[[x-3,y],[x+w/2,y-13],[x+w+3,y],[x+w/2,y+12]],'#89674d','#4b5547');d.fillStyle='#b78660';d.fillRect(x+2,y,w-4,3);d.fillStyle='#263c35';for(let i=7;i<w-4;i+=12){d.fillRect(x+i,y+15,5,9);if(h>40)d.fillRect(x+i,y+30,5,8);}d.fillStyle='#d1b680';d.fillRect(x+w/2-4,y+h-14,8,14);}
-function tree(x,y){d.fillStyle='#132e2866';d.fillRect(x+3,y+1,12,23);circle(d,x,y,12,'#314c3d');circle(d,x-4,y-4,8,'#45634a');circle(d,x+4,y-7,6,'#526c4e');}
-function makeDecor(){seed=187;buildingIndex=0;d.clearRect(0,0,W,H);d.fillStyle='#a4ac9c';d.fillRect(0,0,W,H);if(terrainReady){const paving=d.createPattern(terrain,'repeat');paving.setTransform(new DOMMatrix().scale(160/terrain.naturalWidth,160/terrain.naturalHeight));d.fillStyle=paving;d.fillRect(0,0,W,H);d.fillStyle='#9ca58f33';d.fillRect(0,0,W,H);}for(let y=0;y<H&&!terrainReady;y+=24)for(let x=0;x<W;x+=29){d.strokeStyle=rand()>.5?'#75816b16':'#253f3322';d.strokeRect(x+(y%48?14:0),y,28,23);}
+atlas.onerror=()=>{game.notice='Some illustrations are unavailable.';};
+function makeDecor(){seed=187;d.clearRect(0,0,W,H);d.fillStyle='#a4ac9c';d.fillRect(0,0,W,H);if(terrainReady){const paving=d.createPattern(terrain,'repeat');paving.setTransform(new DOMMatrix().scale(160/terrain.naturalWidth,160/terrain.naturalHeight));d.fillStyle=paving;d.fillRect(0,0,W,H);d.fillStyle='#9ca58f33';d.fillRect(0,0,W,H);}
 canal(d,105,'#354c3b');canal(d,97,'#6c8066');canal(d,91,'#beb18a');canal(d,80,'#d0c099');canal(d,73,'#173e40');canal(d,65,'#286364');canal(d,52,'#2b6c6a');canal(d,31,'#2e716c');
 // Sunlit limestone and a deep water gradient make the banks readable at phone size.
 for(let i=0;i<1150;i++){const x=rand()*W,y=rand()*H;if(nearPath(x,y,29)){d.fillStyle=rand()>.5?'#a6e0c612':'#062e3910';d.fillRect(x,y,8+rand()*12,1);}}
 // Masonry joints along the pale canal banks.
 for(const edge of canalEdges){const [a,b]=edge.points,len=Math.hypot(b[0]-a[0],b[1]-a[1]),dx=(b[0]-a[0])/len,dy=(b[1]-a[1])/len;for(let v=10;v<len-35;v+=19){d.strokeStyle='#697b6022';d.lineWidth=2;for(const side of [-1,1]){d.beginPath();d.moveTo(a[0]+dx*v-dy*side*37,a[1]+dy*v+dx*side*37);d.lineTo(a[0]+dx*v-dy*side*44,a[1]+dy*v+dx*side*44);d.stroke();}}}
 // Mixed-density neighbourhoods fill dry land while retaining canal and mooring clearance.
-for(const item of cityLayout){
- if(cityReady)paintCitySprite(d,cityArt,item);
- else house(item.x,item.y,item.w-14,item.h-10,'#b6a37c');
-}
-// Small piazza and a domed basilica in the lower-left quarter.
-if(artReady){paintSprite(d,atlas,'basilica',9,323,82,90);}else{d.fillStyle='#a5a181';d.fillRect(22,318,61,100);d.strokeStyle='#777e60';d.strokeRect(26,322,53,92);d.fillStyle='#ac9d75';d.fillRect(30,352,44,51);d.fillStyle='#d0ba8a';d.fillRect(34,363,36,40);poly(d,[[28,352],[52,336],[76,352]],'#b6a37b');circle(d,52,336,13,'#819482');d.fillStyle='#819482';d.fillRect(39,336,26,15);d.fillStyle='#d3c08f';d.fillRect(50,316,4,9);d.fillStyle='#33493d';for(let x=40;x<70;x+=11)d.fillRect(x,377,5,17);
-}
-// Retain a simple gate if the generated landmark cannot load.
-if(!gateReady){
- d.fillStyle='#263f36';d.fillRect(317,686,82,40);d.fillStyle='#b5aa81';d.fillRect(318,678,25,48);d.fillRect(371,678,25,48);d.fillRect(337,685,40,13);d.fillStyle='#7e8e75';d.fillRect(318,674,25,6);d.fillRect(371,674,25,6);
-}
+if(cityReady)for(const item of cityLayout)paintCitySprite(d,cityArt,item);
+// Scenery appears only when its artwork is ready; loading leaves clean paving.
+if(artReady)paintSprite(d,atlas,'basilica',9,323,82,90);
 }
 makeDecor();
 resizeBoard();
@@ -161,7 +151,7 @@ function upgradeDetails(tower){
   const rows=[['Damage / hit','damage'],['Shots / sec','shotsPerSecond'],['Range','range'],['DPS / target','dps']];
   table.innerHTML='<thead><tr><th scope="col">Stat</th><th scope="col">Now · L'+tower.level+'</th>'+(next?'<th scope="col">Next · L'+(tower.level+1)+'</th>':'')+'</tr></thead><tbody>'+rows.map(([label,stat])=>'<tr><th scope="row">'+label+'</th><td>'+number(now[stat])+'</td>'+(next?'<td><span aria-hidden="true">→ </span>'+number(next[stat])+'</td>':'')+'</tr>').join('')+'</tbody>';
   table.dataset.key=key;
-  $('upgrade-traits').textContent=tower.type==='frost'?'Slow stays at 48% for 2 seconds.':tower.type==='splash'?'Blast radius stays at 57. Damage applies to each boat hit.':'';
+  $('upgrade-traits').textContent=tower.type==='frost'?'Slow stays at '+Math.round(towerTypes.frost.slow*100)+'% for '+towerTypes.frost.slowDuration+' seconds.':tower.type==='splash'?'Blast radius stays at 57. Damage applies to each boat hit.':'';
   $('upgrade-traits').hidden=!$('upgrade-traits').textContent;
  }
  const missing=game.upgradeCost(tower)-game.gold;
@@ -169,10 +159,11 @@ function upgradeDetails(tower){
  const status=missing>0?'Need ◈ '+missing+' more gold':'';
  if($('upgrade-status').textContent!==status)$('upgrade-status').textContent=status;
 }
-function ui(){ $('dam-price').textContent='◈ '+damCost; if(selected==='dam'){damChecks.clear();for(const site of damSites)damChecks.set(site.id,game.damCheck(site.id));} $('gold').textContent=game.gold;$('health').textContent=game.health;$('health-fill').style.width=game.health*5+'%';$('start').disabled=game.active||['lost','won'].includes(game.status);$('start').innerHTML=game.active?'Wave '+game.wave+' in progress <span>≈</span>':game.wave===0?'Launch wave <span><i class="arrow" aria-hidden="true"></i></span>':'Launch next wave <span><i class="arrow" aria-hidden="true"></i></span>';$('pause').disabled=!game.active;$('pause').textContent=paused?'Resume':'Pause';$('map-tip').textContent=feedback&&feedback.until>performance.now()?feedback.text:selected==='dam'?(damFocus?'Dam selected · Remove it below':damHover&&!game.dams.includes(damHover)&&!damPreview(damHover).ok?damPreview(damHover).reason:'Tap a marked crossing · ◈ '+damCost):focus?'✧  Tower selected · Manage it below':game.active?'≈  '+(game.enemies.length+game.queue.length)+' raiders remaining':'✧  Tap a marked mooring to build';
+function ui(){ $('dam-price').textContent='◈ '+damCost; if(selected==='dam'){damChecks.clear();for(const site of damSites)damChecks.set(site.id,game.damCheck(site.id));} $('gold').textContent=game.gold;$('health').textContent=game.health;$('health-fill').style.width=game.health*5+'%';$('start').disabled=game.active||game.status==='lost';$('start').innerHTML=game.active?'Wave '+game.wave+' in progress <span>≈</span>':'Launch wave '+(game.wave+1)+' <span><i class="arrow" aria-hidden="true"></i></span>';$('pause').disabled=!game.active;$('pause').textContent=paused?'Resume':'Pause';$('map-tip').textContent=feedback&&feedback.until>performance.now()?feedback.text:selected==='dam'?(damFocus?'Dam selected · Remove it below':damHover&&!game.dams.includes(damHover)&&!damPreview(damHover).ok?damPreview(damHover).reason:'Tap a marked crossing · ◈ '+damCost):focus?'✧  Tower selected · Manage it below':game.active?'≈  '+(game.enemies.length+game.queue.length)+' raiders remaining':'✧  Tap a marked mooring to build';
  document.querySelectorAll('.tower-card[data-type]').forEach(el=>{el.classList.toggle('selected',el.dataset.type===selected&&!focus);el.setAttribute('aria-pressed',String(el.dataset.type===selected&&!focus));el.classList.toggle('unaffordable',game.gold<towerTypes[el.dataset.type].cost);});
- $('dam-tool').classList.toggle('selected',selected==='dam');$('dam-tool').classList.toggle('unaffordable',game.gold<damCost);$('dam-tool').setAttribute('aria-pressed',String(selected==='dam'));$('upgrade').hidden=!!damFocus;$('upgrade-effects').hidden=!focus;$('upgrade-status').hidden=true;$('sell').textContent='Sell tower';$('tower-detail').hidden=!focus&&!damFocus;if(damFocus){$('detail-title').textContent='Canal dam';$('detail-copy').textContent='Blocks this canal. Remove it to reopen the route.';$('sell').textContent='Remove · ◈ '+Math.floor(damCost*.65);}if(focus){$('detail-title').textContent=towerTypes[focus.type].name+' · Level '+focus.level;$('detail-copy').textContent=towerTypes[focus.type].description;upgradeDetails(focus);$('upgrade').textContent=focus.level===3?'Fully upgraded':'Upgrade to level '+(focus.level+1)+' · ◈ '+game.upgradeCost(focus);$('upgrade').disabled=focus.level>=3||game.gold<game.upgradeCost(focus)||['won','lost'].includes(game.status);}
- const finished=['won','lost'].includes(game.status);$('result').hidden=!finished;if(finished){$('result-title').textContent=game.status==='won'?'Venice stands.':'The lagoon has fallen.';$('result-symbol').textContent=game.status==='won'?'✦':'♜';$('result-copy').textContent=game.status==='won'?`All 10 waves repelled. ${game.kills} raiders defeated. The city remembers its admiral.`:`You held the canals through wave ${game.wave} and defeated ${game.kills} raiders. Reinforce, rethink, and try again.`;}}
+ $('dam-tool').classList.toggle('selected',selected==='dam');$('dam-tool').classList.toggle('unaffordable',game.gold<damCost);$('dam-tool').setAttribute('aria-pressed',String(selected==='dam'));$('upgrade').hidden=!!damFocus;$('upgrade-effects').hidden=!focus;$('upgrade-status').hidden=true;$('sell').textContent='Sell tower';$('tower-detail').hidden=!focus&&!damFocus;if(damFocus){$('detail-title').textContent='Canal dam';$('detail-copy').textContent='Blocks this canal. Remove it to reopen the route.';$('sell').textContent='Remove · ◈ '+Math.floor(damCost*.65);}if(focus){$('detail-title').textContent=towerTypes[focus.type].name+' · Level '+focus.level;$('detail-copy').textContent=towerTypes[focus.type].description;upgradeDetails(focus);$('upgrade').textContent=focus.level===3?'Fully upgraded':'Upgrade to level '+(focus.level+1)+' · ◈ '+game.upgradeCost(focus);$('upgrade').disabled=focus.level>=3||game.gold<game.upgradeCost(focus)||game.status==='lost';}
+ const finished=game.status==='lost';$('result').hidden=!finished;if(finished){$('result-title').textContent='The lagoon has fallen.';$('result-symbol').textContent='♜';$('result-copy').textContent=`You reached wave ${game.wave} and defeated ${game.kills} raiders. Reinforce, rethink, and try again.`;}}
+
 function siteAt(event){const r=canvas.getBoundingClientRect(),x=(event.clientX-r.left)*W/r.width,y=(event.clientY-r.top)*H/r.height;let best=-1,dist=31;sites.forEach((p,i)=>{const n=Math.hypot(x-p[0],y-p[1]);if(n<dist){dist=n;best=i;}});return best;}
 function damAt(event){const r=canvas.getBoundingClientRect(),x=(event.clientX-r.left)*W/r.width,y=(event.clientY-r.top)*H/r.height;return damSites.find(site=>Math.abs(site.x-x)<46&&Math.abs(site.y-y)<26)?.id||null;}
 function towerAt(event){

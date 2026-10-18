@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {simulate,strategies,waveBudget} from '../scripts/balance.mjs';
 for(const strategy of Object.keys(strategies)){
- test('balanced campaign clears every boat with '+strategy,()=>{
+ test('first ten waves clear every raider with '+strategy,()=>{
   const result=simulate({strategy});
-  assert.equal(result.status,'won');assert.equal(result.rows.length,10);
+  assert.equal(result.status,'ready');assert.equal(result.rows.length,10);
   for(const row of result.rows){
    assert.equal(row.leaks,0,'wave '+row.wave+' must clear');
    assert.equal(row.income,waveBudget(row.wave).totalGold,'kill rewards and clear bonus must reconcile');
@@ -17,7 +17,7 @@ for(const strategy of Object.keys(strategies)){
   assert.ok(result.rows.at(-1).bank-result.rows.at(-1).income<80,'money should be invested before the final wave');
  });
 }
-test('sitting on the starting defence cannot win the campaign',()=>{
+test('sitting on the starting defence cannot survive the first ten waves',()=>{
  assert.equal(simulate({invest:false}).status,'lost');
 });
 test('wave health and income rise without an unaffordable health cliff',()=>{

@@ -7,9 +7,14 @@ test('path reaches the southern city gate',()=>{assert.deepEqual(position(0),{x:
 test('undefended boats cost integrity and clearing a wave awards a bonus',()=>{const g=new Game();g.startWave();tick(g,100);assert.equal(g.health,11);assert.equal(g.active,false);assert.equal(g.status,'ready');assert.equal(g.gold,300);});
 test('towers kill enemies and earn gold',()=>{const g=new Game();g.build(0,'bolt');g.build(1,'bolt');g.build(2,'bolt');g.startWave();tick(g,100);assert.ok(g.kills>0);assert.ok(g.health>11);assert.ok(g.gold>25);});
 test('upgrades are capped and selling refunds invested gold',()=>{const g=new Game();g.build(0,'bolt');const t=g.towers[0];assert.equal(g.upgrade(t),true);assert.equal(t.level,2);g.gold=1000;assert.equal(g.upgrade(t),true);assert.equal(g.upgrade(t),false);const before=g.gold;g.sell(t);assert.equal(g.towers.length,0);assert.equal(g.gold-before,Math.floor(towerTypes.bolt.cost*3.25*.65));});
-test('slow towers slow enemies, splash hits adjacent boats',()=>{for(const type of ['frost','splash']){const g=new Game();g.build(0,type);g.wave=1;g.enemies=[0,5].map((offset,i)=>({x:122,y:60+offset,distance:90+offset,speed:1,hp:100,maxHp:100,slow:0,reward:1,id:i}));g.update(.05);assert.ok(g.enemies.every(e=>e.hp===100));tick(g,.4);if(type==='frost')assert.ok(g.enemies.some(e=>e.slow>1&&e.slow<=2));else assert.ok(g.enemies.every(e=>e.hp===71));}});
+test('slow towers slow enemies, splash hits adjacent boats',()=>{for(const type of ['frost','splash']){const g=new Game();g.build(0,type);g.wave=1;g.enemies=[0,5].map((offset,i)=>({x:122,y:60+offset,distance:90+offset,speed:1,hp:100,maxHp:100,slow:0,reward:1,id:i}));g.update(.05);assert.ok(g.enemies.every(e=>e.hp===100));tick(g,.4);if(type==='frost')assert.ok(g.enemies.some(e=>e.slow>1&&e.slow<=2));else assert.ok(g.enemies.every(e=>e.hp===70));}});
 test('loss ends spawning and blocks builds and waves',()=>{const g=new Game();g.health=1;g.startWave();tick(g,70);assert.equal(g.status,'lost');assert.equal(g.health,0);assert.equal(g.startWave(),false);assert.equal(g.build(0,'bolt'),false);});
-test('clearing the tenth wave wins',()=>{const g=new Game();g.wave=9;g.startWave();g.queue=[];g.update(.05);assert.equal(g.status,'won');assert.equal(g.startWave(),false);});
+test('clearing the tenth wave awards gold and allows the eleventh wave',()=>{
+ const g=new Game();g.wave=9;const gold=g.gold;g.startWave();g.queue=[];g.update(.05);
+ assert.equal(g.status,'ready');assert.equal(g.active,false);assert.equal(g.gold,gold+80);
+ assert.equal(g.startWave(),true);assert.equal(g.wave,11);assert.equal(g.queue.length,79);
+ g.update(.01);assert.ok(g.enemies.length>0);assert.ok(g.enemies.every(e=>Number.isFinite(e.hp)&&e.hp>0));
+});
 
 test('waves grow from 9 to 68 boats, with increasing counts and tighter spawns',()=>{
  const waves=Array.from({length:10},(_,index)=>{const game=new Game();game.wave=index;game.startWave();return game.queue;});
@@ -28,6 +33,20 @@ test('a tower can upgrade during a running wave and use its increased range and 
  g.enemies=[target];g.update(.01);assert.equal(g.projectiles.length,0);
  const gold=g.gold;assert.equal(g.upgrade(g.towers[0]),true);assert.equal(g.gold,gold-49);
  assert.equal(g.active,true);assert.equal(g.status,'playing');g.update(.01);
- assert.equal(g.projectiles.length,1);assert.equal(g.projectiles[0].damage,19*1.55);
+ assert.equal(g.projectiles.length,1);assert.equal(g.projectiles[0].damage,20*1.55);
  assert.equal(g.towers[0].cooldown,.65/1.12);
+});
+
+test('waves keep growing beyond ten with finite enemy health and regular airships',()=>{
+ let previous=0;
+ for(const wave of [10,11,12,20,50,100]){
+  const g=new Game();g.wave=wave-1;g.startWave();assert.ok(g.queue.length>previous);previous=g.queue.length;
+  g.update(.01);assert.ok(g.enemies.every(e=>Number.isFinite(e.hp)&&e.hp>0));
+  assert.equal(g.queue.filter(q=>q.kind===5).length,wave%2===0?1:0);
+ }
+});
+test('freeze halves movement speed while its slow effect is active',()=>{
+ const g=new Game();g.enemies=[{distance:100,speed:100,hp:100,maxHp:100,slow:2,reward:1}];
+ g.update(.5);assert.equal(g.enemies[0].distance,125);
+ g.update(.5);assert.equal(g.enemies[0].distance,150);
 });
