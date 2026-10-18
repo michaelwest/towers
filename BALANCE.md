@@ -8,13 +8,13 @@ Damage per second (DPS) = damage / cooldown. This assumes continuous firing and 
 
 | Tower | Cost | Damage | Cooldown | L1 DPS | L2 DPS | L3 DPS | Total cost at L3 |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Arrow Shooter | 65 | 19 | 0.65s | 29.23 | 50.74 | 76.12 | 212 |
-| Cannon That Booms | 110 | 29 | 1.65s | 17.58 | 30.51 | 45.77 | 358 |
-| Ice Shooter | 85 | 6 | 0.95s | 6.32 | 10.96 | 16.45 | 277 |
+| Ballista | 65 | 19 | 0.65s | 29.23 | 50.74 | 76.12 | 212 |
+| Cannon | 110 | 29 | 1.65s | 17.58 | 30.51 | 45.77 | 358 |
+| Freeze | 85 | 6 | 0.95s | 6.32 | 10.96 | 16.45 | 277 |
 
 Each upgrade adds 55% of base damage, 12% of base firing frequency, and 12 range units. The level-2 DPS factor is 1.55 × 1.12 = 1.736; level 3 is 2.1 × 1.24 = 2.604. Upgrade prices are rounded to the nearest gold.
 
-The Cannon That Booms does 35.15 / 52.73 effective base DPS when each shot catches two / three boats, respectively. The Ice Shooter's main value is its 48% slow for 2 seconds: one application delays an otherwise unimpeded boat by 0.96 seconds of normal travel. Continuous slowing increases time in range by up to 1 / 0.52 = 1.92×. It prioritises unslowed boats and avoids duplicating frost shots already in flight.
+The Cannon does 35.15 / 52.73 effective base DPS when each shot catches two / three boats, respectively. The Freeze's main value is its 48% slow for 2 seconds: one application delays an otherwise unimpeded boat by 0.96 seconds of normal travel. Continuous slowing increases time in range by up to 1 / 0.52 = 1.92×. It prioritises unslowed boats and avoids duplicating frost shots already in flight.
 
 ## Enemies and wave budgets
 
