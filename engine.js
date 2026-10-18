@@ -4,7 +4,7 @@ export const W=720, H=730;
 export const pathPoints=[[122,-30],[122,119],[578,119],[578,270],[142,270],[142,424],[578,424],[578,578],[357,578],[357,754]];
 export const sites=[[70,75],[184,65],[295,65],[415,65],[537,65],[632,158],[516,213],[397,213],[245,200],[82,235],[82,350],[205,363],[345,363],[445,363],[633,385],[633,514],[515,516],[367,516],[297,523],[270,652],[454,680],[210,488]];
 export const towerTypes={
- bolt:{name:'Ballista',cost:65,range:155,cooldown:.65,damage:20,color:'#e5bd76',description:'Fast, precise fire against boats and airships. Ironclad armour resists its bolts.'},
+ bolt:{name:'Ballista',cost:65,range:155,cooldown:.65,damage:20,color:'#e5bd76',description:'Targets airships first, then the boat with the lowest HP. Ironclad armour resists its bolts.'},
  splash:{name:'Cannon',cost:110,range:145,cooldown:1.65,damage:30,color:'#ed9474',description:'Explosive shells bypass Ironclad armour and damage clustered boats. Ground targets only.'},
  frost:{name:'Freeze',cost:85,range:138,cooldown:.95,damage:6,slow:.5,slowDuration:2,color:'#76d6cd',description:'Slows boats and airships by 50% for 2 seconds. Especially useful against fast smugglers.'}
 };
@@ -154,7 +154,13 @@ export class Game {
   for(const t of this.towers){
    t.cooldown-=dt;
    const stats=towerStats(t.type,t.level),p=sites[t.site];
-   const targets=this.enemies.filter(e=>e.hp>0&&!e.escaped&&canTarget(t.type,e)&&Math.hypot(e.x-p[0],e.y-p[1])<=stats.range).sort((a,b)=>((a.routeLength||pathLength)-a.distance)-((b.routeLength||pathLength)-b.distance));
+   const targets=this.enemies.filter(e=>e.hp>0&&!e.escaped&&canTarget(t.type,e)&&Math.hypot(e.x-p[0],e.y-p[1])<=stats.range).sort((a,b)=>{
+    if(t.type==='bolt'){
+     const priority=Number(!!b.flying)-Number(!!a.flying)||a.hp-b.hp;
+     if(priority)return priority;
+    }
+    return ((a.routeLength||pathLength)-a.distance)-((b.routeLength||pathLength)-b.distance);
+   });
    if(!targets.length)continue;
    let target=targets[0];
    if(t.type==='frost'){

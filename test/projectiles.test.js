@@ -58,11 +58,32 @@ test('frost refreshes a frozen boat when every boat in range is already slowed',
  assert.equal(game.projectiles[0].target,front);
  advance(game,.6);assert.ok(front.slow>1);
 });
-test('damage towers continue targeting the leader even when it is frozen',()=>{
+test('damage towers use gate distance for equal-health boats even when the leader is frozen',()=>{
  for(const type of ['bolt','splash']){
   const game=new Game();game.build(0,type);
   const front=enemy(210),back=enemy(180);front.slow=1;
   game.enemies=[back,front];game.update(.01);
   assert.equal(game.projectiles[0].target,front);
  }
+});
+
+test('Ballistas prioritise an airship over a weaker boat closer to the gate',()=>{
+ const game=new Game();game.build(0,'bolt');
+ const boat=enemy(210),air=enemy(180);boat.hp=1;air.flying=true;air.hp=300;
+ game.enemies=[boat,air];game.update(.01);assert.equal(game.projectiles[0].target,air);
+});
+test('Ballistas choose the lowest absolute boat HP regardless of gate distance or HP percentage',()=>{
+ const game=new Game();game.build(0,'bolt');
+ const near=enemy(210),weak=enemy(180);near.hp=50;near.maxHp=500;weak.hp=20;weak.maxHp=20;
+ game.enemies=[near,weak];game.update(.01);assert.equal(game.projectiles[0].target,weak);
+});
+test('Ballistas ignore airships outside range and enemies already dead or escaped',()=>{
+ const game=new Game();game.build(0,'bolt');
+ const air=enemy(600),dead=enemy(210),escaped=enemy(210),weak=enemy(180),healthy=enemy(210);
+ air.flying=true;dead.hp=0;escaped.escaped=true;weak.hp=20;
+ game.enemies=[air,dead,escaped,healthy,weak];game.update(.01);assert.equal(game.projectiles[0].target,weak);
+});
+test('Cannons still prioritise gate distance over a weaker boat farther away',()=>{
+ const game=new Game();game.build(0,'splash');const front=enemy(210),weak=enemy(180);weak.hp=1;
+ game.enemies=[weak,front];game.update(.01);assert.equal(game.projectiles[0].target,front);
 });

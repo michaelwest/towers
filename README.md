@@ -67,3 +67,5 @@ Tap any part of a built tower, including its roof or weapon, to manage it during
 Raider HP bars and status icons render in a final foreground pass above docks, towers, the Arsenal gate and combat effects.
 
 Base Ballista damage is 20, Cannon damage is 30, and Freeze slows movement by 50% for two seconds. The upgrade preview uses the same values as combat. The balance reference plans cover the first ten waves; clearing wave 10 returns to preparation for wave 11 rather than ending the game.
+
+Ballistas prioritise airships in range, then water raiders with the lowest current HP (not the lowest HP percentage). Equal-priority targets are ordered by remaining route distance to the gate. Cannons retain gate-distance priority, and Freeze towers continue spreading slowing effects across enemies.

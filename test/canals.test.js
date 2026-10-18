@@ -73,7 +73,7 @@ test('all dam markers sit on existing canals and every route ends at the gate',(
  for(const route of findRoutes())assert.deepEqual(route.points.at(-1),[357,754]);
 });
 
-test('towers prioritise the boat nearest the goal across routes of different lengths',()=>{
+test('equal-health Ballista targets use remaining gate distance to break ties across routes',()=>{
  const game=new Game({random:()=>0});game.build(0,'bolt');
  const long={hp:100,maxHp:100,distance:200,routeLength:2000,speed:0,slow:0,reward:1};
  const short={hp:100,maxHp:100,distance:180,routeLength:300,speed:0,slow:0,reward:1};

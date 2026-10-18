@@ -59,28 +59,28 @@ Dams cost 125 gold each and refund 81 on removal. At 3.57 times their former pri
 
 The initial shortest route is 1,225 units; all three dams restore the 2,333-unit main canal, an increase of 90.4%. Detours add independently. The network starts with eight simple routes. Each boat independently chooses the shortest available route with 75% probability, or the longest available route with 25% probability. That choice is kept when a dam reroutes it from its current position. A single remaining route is used by all boats. Airships keep their direct flight path.
 
-Dam purchases validate the full network and each live boat. Complete blockades, trapped boats, and building through an occupied canal are rejected without charging gold. Live boats reroute from their current position. Target priority uses remaining distance to the goal, so a boat on a shortcut is not overlooked merely because it travelled fewer units.
+Dam purchases validate the full network and each live boat. Complete blockades, trapped boats, and building through an occupied canal are rejected without charging gold. Live boats reroute from their current position. Ballistas target airships first, then the lowest-current-HP boat; remaining gate distance breaks ties. Cannons use remaining gate distance, and Freeze towers prefer unslowed enemies before using that distance priority.
 
 ## First ten waves
 
-Run `npm run balance` to reproduce these results. The simulator uses a seeded random source (seed 1 by default) so the 75/25 route choices are repeatable; live games use fresh random choices, so exact clear margins vary between runs. The two explicit purchase schedules are in scripts/balance.mjs. They begin with three crossbows for 195 of the starting 220 gold, buy the first dam before wave 4, and use it alone through wave 5. The other dams follow before waves 6 and 7. Purchases happen only between waves. Every purchase must succeed at its actual price; the simulator rejects unaffordable plans. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. The first-ten-wave enemy counts, starting gold and 80-gold clear bonus are unchanged. Ballista and Cannon base damage are now 20 and 30, and Freeze slows by 50%. Added enemies replace selected existing spawns; Smugglers begin on wave 3, Ironclads on wave 5, and one airship appears on every even wave from wave 6 onward. The schedules move one back-line upgrade forward to wave 7 to counter the new mix.
+Run `npm run balance` to reproduce these results. The simulator uses a seeded random source (seed 1 by default) so the 75/25 route choices are repeatable; live games use fresh random choices, so exact clear margins vary between runs. The two explicit purchase schedules are in scripts/balance.mjs. They begin with three crossbows for 195 of the starting 220 gold, buy the first dam before wave 4, and use it alone through wave 5. The other dams follow before waves 6 and 7. Purchases happen only between waves. Every purchase must succeed at its actual price; the simulator rejects unaffordable plans. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. The first-ten-wave enemy counts, starting gold and 80-gold clear bonus are unchanged. Ballista and Cannon base damage are now 20 and 30, and Freeze slows by 50%. Added enemies replace selected existing spawns; Smugglers begin on wave 3, Ironclads on wave 5, and one airship appears on every even wave from wave 6 onward. The schedules upgrade a back-line Ballista and a Cannon on wave 7, then add Freeze on wave 8. Their second Cannon guards the eastern bend to finish heavy boats while Ballistas focus on airships and low-HP targets.
 
 “Furthest” is the maximum fraction of a boat's own current route traversed during the wave. Reaching 100% means a leak. The opening uses the open network; routes lengthen as dams become affordable.
 
 | Wave | Upgrade finish: furthest | Extra frost: furthest | Escapes, both |
 |---|---:|---:|---:|
 | 1 | 44.4% | 44.4% | 0 |
-| 2 | 53.0% | 53.0% | 0 |
-| 3 | 61.3% | 61.3% | 0 |
-| 4 | 70.0% | 70.0% | 0 |
-| 5 | 76.9% | 76.9% | 0 |
-| 6 | 95.7% | 95.7% | 0 |
-| 7 | 86.4% | 86.4% | 0 |
-| 8 | 70.9% | 70.9% | 0 |
-| 9 | 74.3% | 74.3% | 0 |
-| 10 | 87.5% | 85.8% | 0 |
+| 2 | 57.4% | 57.4% | 0 |
+| 3 | 68.2% | 68.2% | 0 |
+| 4 | 92.3% | 92.3% | 0 |
+| 5 | 82.1% | 82.1% | 0 |
+| 6 | 93.5% | 93.5% | 0 |
+| 7 | 93.0% | 93.0% | 0 |
+| 8 | 91.0% | 91.0% | 0 |
+| 9 | 90.2% | 90.2% | 0 |
+| 10 | 89.1% | 89.3% | 0 |
 
-Both plans clear the first ten waves while paying 375 gold for three dams. They use the same mixed defence through wave 9, then either invest in existing towers or add a second Freeze tower at the exit. Wave-10 threats reach 87.5% / 85.8% of their own route, with 49 / 43 gold left before that wave. Clearing it returns to preparation, with wave 11 available. These purchase plans are opening benchmarks, not a claim of indefinite survival. Keeping only the initial defence eventually loses.
+Both plans clear the first ten waves while paying 375 gold for three dams. They use the same mixed defence through wave 9, then either invest in existing towers or add a second Freeze tower at the exit. Wave-10 threats reach 89.1% / 89.3% of their own route, with 49 / 43 gold left before that wave. Clearing it returns to preparation, with wave 11 available. These purchase plans are opening benchmarks, not a claim of indefinite survival. Keeping only the initial defence eventually loses.
 
 Armour makes raw HP totals incomplete: a 150-HP Ironclad requires 428.6 raw bolt damage, compared with 150 cannon damage. A base crossbow delivers 10.77 DPS against it rather than 30.77; a cannon retains 18.18 DPS per enemy hit. Airship route length is independent of dams; closing canals changes neither flight progress nor position. Its higher gate damage cannot be avoided by finishing a wave with it still in the air. The tests require complete clears of all six enemy types and reconcile their actual rewards.
 

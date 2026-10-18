@@ -8,10 +8,10 @@ export const strategies={
   [[6,'upgrade'],[21,'bolt']], // Wave 3
   [['west-cut','dam']], // Wave 4
   [[18,'bolt'],[13,'splash']], // Wave 5
-  [['east-cut','dam'],[7,'splash']], // Wave 6
-  [['centre-cut','dam'],[16,'frost'],[17,'upgrade']], // Wave 7
-  [[13,'upgrade'],[7,'upgrade'],[8,'upgrade']], // Wave 8
-  [[13,'upgrade'],[7,'upgrade']], // Wave 9
+  [['centre-cut','dam'],[14,'splash']], // Wave 6
+  [['east-cut','dam'],[14,'upgrade'],[17,'upgrade']], // Wave 7
+  [[16,'frost'],[13,'upgrade'],[8,'upgrade']], // Wave 8
+  [[13,'upgrade'],[14,'upgrade']], // Wave 9
   [[16,'upgrade'],[16,'upgrade'],[17,'upgrade'],[12,'upgrade'],[18,'upgrade']] // Wave 10
  ],
  frostFinish:[
@@ -20,10 +20,10 @@ export const strategies={
   [[6,'upgrade'],[21,'bolt']], // Wave 3
   [['west-cut','dam']], // Wave 4
   [[18,'bolt'],[13,'splash']], // Wave 5
-  [['east-cut','dam'],[7,'splash']], // Wave 6
-  [['centre-cut','dam'],[16,'frost'],[17,'upgrade']], // Wave 7
-  [[13,'upgrade'],[7,'upgrade'],[8,'upgrade']], // Wave 8
-  [[13,'upgrade'],[7,'upgrade']], // Wave 9
+  [['centre-cut','dam'],[14,'splash']], // Wave 6
+  [['east-cut','dam'],[14,'upgrade'],[17,'upgrade']], // Wave 7
+  [[16,'frost'],[13,'upgrade'],[8,'upgrade']], // Wave 8
+  [[13,'upgrade'],[14,'upgrade']], // Wave 9
   [[19,'frost'],[16,'upgrade'],[17,'upgrade'],[12,'upgrade'],[18,'upgrade'],[11,'upgrade']] // Wave 10
  ]
 };
