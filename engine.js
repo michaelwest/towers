@@ -52,7 +52,7 @@ export function position(distance,points=pathPoints){
  return {x:b[0],y:b[1],angle:Math.atan2(b[1]-a[1],b[0]-a[0])};
 }
 export class Game {
- constructor(){this.gold=balance.startingGold;this.health=20;this.wave=0;this.kills=0;this.towers=[];this.dams=[];this.routes=findRoutes();this.enemies=[];this.projectiles=[];this.effects=[];this.queue=[];this.active=false;this.status='ready';this.time=0;this.lastId=0;this.notice='Build your first line of defence.';}
+ constructor({random=Math.random}={}){this.random=random;this.gold=balance.startingGold;this.health=20;this.wave=0;this.kills=0;this.towers=[];this.dams=[];this.routes=findRoutes();this.enemies=[];this.projectiles=[];this.effects=[];this.queue=[];this.active=false;this.status='ready';this.time=0;this.lastId=0;this.notice='Build your first line of defence.';}
  build(site,type){const spec=towerTypes[type];if(!spec||!sites[site]||this.status==='lost')return false;if(this.towers.some(t=>t.site===site)){this.notice='That mooring already has a tower.';return false;}if(this.gold<spec.cost){this.notice='Not enough gold. Defeat raiders to earn more.';return false;}this.gold-=spec.cost;this.towers.push({site,type,level:1,cooldown:0,aim:-Math.PI/2});this.notice=spec.name+' built. Ready for the tide.';return true;}
  upgrade(tower){const cost=this.upgradeCost(tower);if(tower.level>=3||this.gold<cost||!this.towers.includes(tower)||this.status==='lost')return false;this.gold-=cost;tower.level++;this.notice=towerTypes[tower.type].name+' upgraded to level '+tower.level+'.';return true;}
  upgradeCost(tower){return Math.round(towerTypes[tower.type].cost*.75*tower.level);}
@@ -86,7 +86,8 @@ export class Game {
   this.routes=findRoutes(this.dams);
   for(const enemy of this.enemies){
    if(enemy.flying||enemy.hp<=0||enemy.escaped)continue;
-   const route=chooseRoute(routesFromPoint(enemy,this.dams),enemy.id);
+   enemy.routeRoll??=this.random();
+   const route=chooseRoute(routesFromPoint(enemy,this.dams),enemy.routeRoll);
    if(route){enemy.routePoints=route.points;enemy.routeLength=route.length;enemy.distance=0;}
   }
  }
@@ -104,8 +105,8 @@ export class Game {
   this.effects=this.effects.filter(e=>(e.life-=dt)>0);
   while(this.queue.length&&this.queue[0].at<=this.time){
    const q=this.queue.shift(),k=enemyTypes[q.kind],hp=Math.round(k.hp*waveHpMultiplier(this.wave));
-   const id=++this.lastId,route=k.flying?{points:airRoute,length:airRouteLength}:chooseRoute(this.routes,id);
-   this.enemies.push({...k,hp,maxHp:hp,kind:q.kind,distance:0,slow:0,hit:0,id,routePoints:route.points,routeLength:route.length,...position(0,route.points)});
+   const id=++this.lastId,routeRoll=k.flying?0:this.random(),route=k.flying?{points:airRoute,length:airRouteLength}:chooseRoute(this.routes,routeRoll);
+   this.enemies.push({...k,hp,maxHp:hp,kind:q.kind,distance:0,slow:0,hit:0,id,routeRoll,routePoints:route.points,routeLength:route.length,...position(0,route.points)});
   }
   for(const e of this.enemies){
    if(e.hp<=0||e.escaped)continue;

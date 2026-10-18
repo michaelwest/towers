@@ -57,24 +57,24 @@ Dams cost 125 gold each and refund 81 on removal. At 3.57 times their former pri
 | Middle shortcut | (280, 358) | 276 (+22.5%) | 1,501 |
 | Lower shortcut | (430, 524) | 296 (+24.2%) | 1,521 |
 
-The initial shortest route is 1,225 units; all three dams restore the 2,333-unit main canal, an increase of 90.4%. Detours add independently. The network starts with eight simple routes. Most boats use the shortest; every third chooses the second-shortest when it is within 50% of the shortest.
+The initial shortest route is 1,225 units; all three dams restore the 2,333-unit main canal, an increase of 90.4%. Detours add independently. The network starts with eight simple routes. Each boat independently chooses the shortest available route with 75% probability, or the longest available route with 25% probability. That choice is kept when a dam reroutes it from its current position. A single remaining route is used by all boats. Airships keep their direct flight path.
 
 Dam purchases validate the full network and each live boat. Complete blockades, trapped boats, and building through an occupied canal are rejected without charging gold. Live boats reroute from their current position. Target priority uses remaining distance to the goal, so a boat on a shortcut is not overlooked merely because it travelled fewer units.
 
 ## First ten waves
 
-Run `npm run balance` to reproduce these results. The two explicit purchase schedules are in scripts/balance.mjs. They begin with three crossbows for 195 of the starting 220 gold, buy the first dam before wave 4, and use it alone through wave 5. The other dams follow before waves 6 and 7. Purchases happen only between waves. Every purchase must succeed at its actual price; the simulator rejects unaffordable plans. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. The first-ten-wave enemy counts, starting gold and 80-gold clear bonus are unchanged. Ballista and Cannon base damage are now 20 and 30, and Freeze slows by 50%. Added enemies replace selected existing spawns; Smugglers begin on wave 3, Ironclads on wave 5, and one airship appears on every even wave from wave 6 onward. The schedules move one back-line upgrade forward to wave 7 to counter the new mix.
+Run `npm run balance` to reproduce these results. The simulator uses a seeded random source (seed 1 by default) so the 75/25 route choices are repeatable; live games use fresh random choices, so exact clear margins vary between runs. The two explicit purchase schedules are in scripts/balance.mjs. They begin with three crossbows for 195 of the starting 220 gold, buy the first dam before wave 4, and use it alone through wave 5. The other dams follow before waves 6 and 7. Purchases happen only between waves. Every purchase must succeed at its actual price; the simulator rejects unaffordable plans. No selling, mid-wave reinvestment, dynamic difficulty, stat overrides, or target micro is used. Combat runs at a fixed 1/60-second step, as in the browser. The first-ten-wave enemy counts, starting gold and 80-gold clear bonus are unchanged. Ballista and Cannon base damage are now 20 and 30, and Freeze slows by 50%. Added enemies replace selected existing spawns; Smugglers begin on wave 3, Ironclads on wave 5, and one airship appears on every even wave from wave 6 onward. The schedules move one back-line upgrade forward to wave 7 to counter the new mix.
 
 “Furthest” is the maximum fraction of a boat's own current route traversed during the wave. Reaching 100% means a leak. The opening uses the open network; routes lengthen as dams become affordable.
 
 | Wave | Upgrade finish: furthest | Extra frost: furthest | Escapes, both |
 |---|---:|---:|---:|
-| 1 | 59.9% | 59.9% | 0 |
-| 2 | 69.0% | 69.0% | 0 |
-| 3 | 75.9% | 75.9% | 0 |
-| 4 | 78.6% | 78.6% | 0 |
-| 5 | 79.1% | 79.1% | 0 |
-| 6 | 92.0% | 92.0% | 0 |
+| 1 | 44.4% | 44.4% | 0 |
+| 2 | 53.0% | 53.0% | 0 |
+| 3 | 61.3% | 61.3% | 0 |
+| 4 | 70.0% | 70.0% | 0 |
+| 5 | 76.9% | 76.9% | 0 |
+| 6 | 95.7% | 95.7% | 0 |
 | 7 | 86.4% | 86.4% | 0 |
 | 8 | 70.9% | 70.9% | 0 |
 | 9 | 74.3% | 74.3% | 0 |

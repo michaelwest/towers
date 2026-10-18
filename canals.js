@@ -32,10 +32,10 @@ export function findRoutes(blocked=[],start='entry'){
  }
  visit(start,[start],0);routes.sort((a,b)=>a.length-b.length);cache.set(key,routes);return routes;
 }
-export function chooseRoute(routes,serial=0){
+export function chooseRoute(routes,roll=Math.random()){
  if(!routes.length)return null;
- // Most boats take the shortest route; every third takes a viable close alternative.
- return serial%3===0&&routes[1]?.length<=routes[0].length*1.5?routes[1]:routes[0];
+ // Routes are sorted by length: 75% shortest, 25% longest still open.
+ return roll<.75?routes[0]:routes.at(-1);
 }
 export function locationOnNetwork(point){
  const node=Object.entries(canalNodes).find(([,p])=>Math.hypot(p[0]-point.x,p[1]-point.y)<.01);

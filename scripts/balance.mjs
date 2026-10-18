@@ -27,8 +27,10 @@ export const strategies={
   [[19,'frost'],[16,'upgrade'],[17,'upgrade'],[12,'upgrade'],[18,'upgrade'],[11,'upgrade']] // Wave 10
  ]
 };
-export function simulate({strategy='upgradeFinish',dt=1/60,stopAfter=10,invest=true}={}){
- const game=new Game(),rows=[];
+export function simulate({strategy='upgradeFinish',dt=1/60,stopAfter=10,invest=true,seed=1}={}){
+ let state=seed>>>0;
+ const random=()=>((state=(Math.imul(state,1664525)+1013904223)>>>0)/4294967296);
+ const game=new Game({random}),rows=[];
  for(let wave=1;wave<=stopAfter;wave++){
   if(invest||wave===1){
    for(const [site,type] of strategies[strategy][wave-1]||[]){
